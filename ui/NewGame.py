@@ -1,8 +1,8 @@
-from PyQt5.QtWidgets import QWidget
 from PyQt5 import uic
+from PyQt5.QtWidgets import QWidget
 
-from model.Sudoku import Sudoku
 from Game import Game
+from model.Sudoku import Sudoku
 
 
 class NewGame(QWidget):
@@ -20,7 +20,16 @@ class NewGame(QWidget):
             button.clicked.connect(self.__generate_sudoku)
 
     def __generate_sudoku(self):
-        sudoku = Sudoku()
+        name = self.sender().objectName()[4:]
+
+        if name == "easy":
+            n = 0
+        elif name == "middle":
+            n = 1
+        else:
+            n = 2
+        print(n)
+        sudoku = Sudoku(n)
 
         for widget in self.widgets:
             widget.hide()
