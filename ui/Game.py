@@ -12,14 +12,17 @@ class Game(QWidget):
         self.__setup_ui()
 
     def __setup_ui(self):
+
+        self.btn_save.clicked.connect(self.__save_sudoku)
+
         c = 0
         for i in range(9):
             for j in range(9):
                 button = QPushButton(self)
                 button.setObjectName(str(i) + str(j))
 
-                if self.sudoku.field[i, j] != 0:
-                    button.setText(str(self.sudoku.field[i, j]))
+                if self.sudoku.current_field[i][j] != 0:
+                    button.setText(str(self.sudoku.current_field[i][j]))
                     c+=1
                 else:
                     button.setText("")
@@ -34,7 +37,7 @@ class Game(QWidget):
             radio = QRadioButton(str(i), self)
             radio.setObjectName("radio" + str(i))
             radio.toggled.connect(self.__change_digit)
-            radio.setGeometry(x, y, 30, 30)
+            radio.setGeometry(x, y, 50, 50)
             x += 50
 
     def __change_digit(self):
@@ -52,3 +55,6 @@ class Game(QWidget):
         pres_button = self.ui_field.itemAt(9*(y-1) + x - 1).widget()
         print(pres_button.text())
         pres_button.setText(self.current_value)
+
+    def __save_sudoku(self):
+        self.sudoku.save_game("")

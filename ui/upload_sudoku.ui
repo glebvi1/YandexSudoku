@@ -26,7 +26,7 @@
     <string>Загрузить судоку</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit">
+  <widget class="QLineEdit" name="filename">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -47,6 +47,19 @@
    </property>
    <property name="text">
     <string>Найти</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="error">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>230</y>
+     <width>231</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
    </property>
   </widget>
  </widget>

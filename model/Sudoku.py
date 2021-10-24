@@ -1,3 +1,4 @@
+import base64
 import copy
 import random
 
@@ -5,12 +6,7 @@ import numpy as np
 
 
 class Sudoku:
-
-    # ??? @static / @class
-    def sudoku_from_file(self, filename: str):
-        return self.read_field(filename)
-
-    def __init__(self, n=0):
+    def __init__(self, n=0, is_generated=True):
         self.n = n
         self.field = np.array([])
 
@@ -21,7 +17,12 @@ class Sudoku:
         self.solved_field = []
         self.__open_cells = 0
 
-        self.generate_field()
+        if is_generated:
+            self.generate_field()
+
+    @classmethod
+    def sudoku_from_file(cls, filename: str):
+        return cls().__upload_play(filename)
 
     def generate_field(self):
         """
@@ -51,6 +52,7 @@ class Sudoku:
     def __delete_cells(self, diff):
         ind = 0
         looks_cells = [[False for _ in range(9)] for _ in range(9)]
+        field = copy.deepcopy(self.field)
 
         while ind < 81:
             i, j = random.randint(0, 8), random.randint(0, 8)
@@ -70,8 +72,8 @@ class Sudoku:
                     self.field[i][j] = 0
                 looks_cells[i][j] = True
 
-        self.solved_field = copy.deepcopy(self.field)
         self.current_field = copy.deepcopy(self.field)
+        self.field = copy.deepcopy(field)
 
     def get_square_on_field(self, i, j):
         if i <= 2:
@@ -141,6 +143,55 @@ class Sudoku:
             self.__open_cells = filled_cells
             return self.solve()
 
+    def save_game(self, name):
+        name = "1"
+        cur_field, field = self.__encoding()
+        with open(name + ".txt", "w+", encoding="utf-8") as file:
+            file.write(str(cur_field) + "\n")
+            file.write(str(field) + "\n")
+        with open("2.txt", "w+", encoding="utf-8") as file:
+            file.write(str(Sudoku.__sudoku_to_str(self.current_field)) + "\n")
+            file.write(str(Sudoku.__sudoku_to_str(self.field)) + "\n")
+
+    # Загружаем игру из файла
+    @staticmethod
+    def __upload_play(name):
+        # Построчно заполняем self
+        for ind, line in enumerate(Sudoku.__reader(name + ".txt")):
+            if ind == 0:
+                encoding_cur_field = line[1:]
+            elif ind == 1:
+                encoding_field = line[1:]
+
+        # Дешифруем поля, получаем строки
+        current_field, field = Sudoku.__decoding(encoding_cur_field.encode("utf-8"),
+                                                 encoding_field.encode("utf-8"))
+
+        # Перевод поля из строки в поле (np.array)
+        sudoku = Sudoku(is_generated=False)
+        sudoku.current_field = Sudoku.__str_to_sudoku(current_field)
+        sudoku.field = Sudoku.__str_to_sudoku(field)
+        print(sudoku.current_field, sudoku.field, sep="\n")
+        return sudoku
+
+    # Кодируем игровые поля
+    def __encoding(self):
+        # Переводим поля в строки
+        current_field_str = Sudoku.__sudoku_to_str(self.current_field)
+        field_str = Sudoku.__sudoku_to_str(self.field)
+
+        # Кодируем поля
+        # Возращаем байты
+        return base64.b64encode(current_field_str.encode("utf-8")), \
+               base64.b64encode(field_str.encode("utf-8"))
+
+    # Декодируем поля из файла
+    @staticmethod
+    def __decoding(current_field, field):
+        # Возращаем стороки
+        return base64.b64decode(current_field).decode("utf-8"), \
+               base64.b64decode(field).decode("utf-8")
+
     # Алгоритмы перемешивания судоку
 
     # Транспонирование судоку
@@ -193,16 +244,15 @@ class Sudoku:
 
     # Перемешиваем судоку, используя алгоритмы n раз
     def __mix(self, n: int):
-        mix_func = [self.transpose(),
-                    self.swap_rows(),
-                    self.swap_columns(),
-                    self.swap_square_to_horizontal(),
-                    self.swap_square_to_vertical()]
+        mix_func = (self.transpose,
+                    self.swap_rows,
+                    self.swap_columns,
+                    self.swap_square_to_horizontal,
+                    self.swap_square_to_vertical)
 
         for i in range(n):
             func = random.choice(mix_func)
-            # ???
-            func
+            func()
 
     # Метод, возращаем все возможные варианты клеток для поля (j; i) в виде кортежа
     def _generate_cell_value(self, i, j) -> tuple:
@@ -258,8 +308,8 @@ class Sudoku:
     # Проверка, можно ли поставить цифру number на поле (j; i)
     def __check_cell(self, i, j, number):
         return self.__check_horizontal(j, number) and \
-            self.__check_vertical(i, number) and \
-            self.__check_square(i, j, number)
+               self.__check_vertical(i, number) and \
+               self.__check_square(i, j, number)
 
     # Считываем поле судоку из файла
     def read_field(self, filename: str):
@@ -274,6 +324,27 @@ class Sudoku:
     def __reader(filename: str):
         for line in open(filename):
             yield line
+
+    @staticmethod
+    def __sudoku_to_str(sudoku):
+        result = ""
+        for arr in sudoku:
+            for elem in arr:
+                result += str(elem)
+            result += "\n"
+        return result
+
+    @staticmethod
+    def __str_to_sudoku(string: str):
+        sudoku = []
+        for arr in string.split("\n"):
+            temp = []
+            for elem in arr:
+                print(elem)
+                temp.append(int(elem))
+            sudoku.append(np.array(temp))
+
+        return np.array(sudoku)
 
     # Красивый вывод судоку
     def __str__(self):
@@ -293,6 +364,7 @@ class Sudoku:
                 s1 = "-" * 6
                 result += s1 + "+" + s1 + "-+" + s1 + "--"
         return result
+
 
 """while it < 81:
             i, j = random.randrange(0, 9, 1), random.randrange(0, 9, 1)
