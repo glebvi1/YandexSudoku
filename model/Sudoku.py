@@ -251,8 +251,8 @@ class Sudoku:
         # Проверяем верхнюю горизонталь и правую вертикаль
         # Для первого квадрата с координатами (0; 0): (0; 0), (0; 1), (0; 2), (1; 0), (2; 0)
         for ind in range(3):
-            if number == iterable[start_j, start_i + ind] or \
-                    number == iterable[start_j + ind, start_i]:
+            if number == iterable[start_j][start_i + ind] or \
+                    number == iterable[start_j + ind][start_i]:
                 return False
 
         # Координаты центра квадрата
@@ -262,13 +262,13 @@ class Sudoku:
         # Проверяем клетки квадрата 2x2
         # Для первого квадрата с координатами (0; 0): (1; 1), (1; 2), (2; 1)
         for ind in range(2):
-            if number == iterable[start_j, start_i + ind] or \
-                    number == iterable[start_j + ind, start_i]:
+            if number == iterable[start_j][start_i + ind] or \
+                    number == iterable[start_j + ind][start_i]:
                 return False
 
         # Проверка последней клетки
         # Для первого квадрата с координатами (0; 0): (2; 2)
-        return False if number == iterable[start_j + 1, start_i + 1] else True
+        return False if number == iterable[start_j + 1][start_i + 1] else True
 
     # Проверка, можно ли поставить цифру number на поле (j; i)
     def __check_cell(self, i, j, number, is_main_field=True):
@@ -364,9 +364,9 @@ class Sudoku:
             for elem in arr:
                 print(elem)
                 temp.append(int(elem))
-            sudoku.append(np.array(temp))
+            sudoku.append(temp)
 
-        return np.array(sudoku)
+        return np.array([np.array(xi) for xi in sudoku])
 
     # Красивый вывод судоку
     def __str__(self):

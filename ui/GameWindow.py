@@ -46,6 +46,9 @@ class GameWindow(QWidget):
                     button.setText(str(self.sudoku.start_field[i][j]))
                     button.setStyleSheet('QPushButton {color: blue;}')
                     button.setEnabled(False)
+                elif self.sudoku.current_field[i][j] != 0:
+                    button.setText(str(self.sudoku.current_field[i][j]))
+                    button.setStyleSheet('QPushButton {color: black;}')
                 else:
                     button.setText("")
 
