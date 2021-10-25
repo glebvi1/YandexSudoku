@@ -2,7 +2,7 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog
 
 
-class SaveSudoku(QDialog):
+class SaveSudokuDialog(QDialog):
     def __init__(self, parent, sudoku):
         super().__init__(parent)
         self.sudoku = sudoku

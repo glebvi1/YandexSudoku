@@ -1,11 +1,11 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QWidget
 
-from Game import Game
+from GameWindow import GameWindow
 from model.Sudoku import Sudoku
 
 
-class NewGame(QWidget):
+class NewGameWindow(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
         uic.loadUi('ui/new_game.ui', self)
@@ -34,5 +34,5 @@ class NewGame(QWidget):
         for widget in self.widgets:
             widget.hide()
 
-        game = Game(self, sudoku)
+        game = GameWindow(self, sudoku)
         game.show()

@@ -26,7 +26,7 @@ class Sudoku:
     @classmethod
     def sudoku_from_file(cls, filename: str):
         """Создаем судоку по имени файла. Может бросать FileNotFoundError"""
-        return cls().__upload_play(filename)
+        return cls(is_generated=False).__upload_play(filename)
 
     """Генерация судоку"""
 

@@ -3,9 +3,9 @@ import sys
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QMainWindow
 
-from NewGame import NewGame
-from UploadSudoku import UploadSudoku
-from Settings import Settings
+from NewGameWindow import NewGameWindow
+from SettingsDialog import SettingsDialog
+from UploadSudokuWindow import UploadSudokuWindow
 
 
 class MainWindow(QMainWindow):
@@ -23,7 +23,7 @@ class MainWindow(QMainWindow):
     def __navigation(self):
         name = self.sender().objectName()[4:]
         if name == "settings":
-            settings = Settings(self)
+            settings = SettingsDialog(self)
             settings.open()
             return
 
@@ -31,10 +31,10 @@ class MainWindow(QMainWindow):
             button.hide()
         self.label.hide()
         if name == "new_game":
-            new_game = NewGame(self)
+            new_game = NewGameWindow(self)
             new_game.show()
         elif name == "upload_game":
-            upload_sudoku = UploadSudoku(self)
+            upload_sudoku = UploadSudokuWindow(self)
             upload_sudoku.show()
 
 

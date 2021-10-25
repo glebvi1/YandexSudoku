@@ -2,10 +2,10 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import QWidget
 
 from model.Sudoku import Sudoku
-from ui.Game import Game
+from ui.GameWindow import GameWindow
 
 
-class UploadSudoku(QWidget):
+class UploadSudokuWindow(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
         self.parent = parent
@@ -30,5 +30,5 @@ class UploadSudoku(QWidget):
         self.btn_search.hide()
         self.filename.hide()
         self.label.hide()
-        game = Game(self.parent, sudoku)
+        game = GameWindow(self.parent, sudoku)
         game.show()
