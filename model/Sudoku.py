@@ -17,12 +17,18 @@ class Sudoku:
         self.solved_field = []
         self.__open_cells = 0
 
+        # Начальное поле
+        self.start_field = []
+
         if is_generated:
             self.generate_field()
 
     @classmethod
     def sudoku_from_file(cls, filename: str):
+        """Создаем судоку по имени файла. Может бросать FileNotFoundError"""
         return cls().__upload_play(filename)
+
+    """Генерация судоку"""
 
     def generate_field(self):
         """
@@ -33,7 +39,7 @@ class Sudoku:
         n = 2 - сложный
         """
         self.field = np.array([[((i * 3 + i // 3 + j) % 9 + 1) for j in range(9)] for i in range(9)])
-        self.__mix(20)
+        self.__mix(50)
 
         if self.n == 0:
             diff = 32
@@ -43,13 +49,10 @@ class Sudoku:
             diff = 27
 
         self.__delete_cells(diff)
-
-        print(self.field)
-        print(self.solved_field)
         return self
 
-    # Удаляем некоторые ячейки, после перемешивания судоку
     def __delete_cells(self, diff):
+        """Удаляем клетки после перемешивания судоку"""
         ind = 0
         looks_cells = [[False for _ in range(9)] for _ in range(9)]
         field = copy.deepcopy(self.field)
@@ -64,7 +67,8 @@ class Sudoku:
                 self.field[i][j] = 0
 
                 option_elem = self._generate_cell_value(j, i)
-
+                print(self.field)
+                print(option_elem)
                 if len(option_elem) != 1:
                     self.field[i][j] = temp
                     continue
@@ -72,7 +76,9 @@ class Sudoku:
                     self.field[i][j] = 0
                 looks_cells[i][j] = True
 
+        print(field, self.field, self.current_field, self.start_field, sep="\n")
         self.current_field = copy.deepcopy(self.field)
+        self.start_field = copy.deepcopy(self.field)
         self.field = copy.deepcopy(field)
 
     def get_square_on_field(self, i, j):
@@ -143,56 +149,12 @@ class Sudoku:
             self.__open_cells = filled_cells
             return self.solve()
 
-    def save_game(self, name):
-        name = "1"
-        cur_field, field = self.__encoding()
-        with open(name + ".txt", "w+", encoding="utf-8") as file:
-            file.write(str(cur_field) + "\n")
-            file.write(str(field) + "\n")
-        with open("2.txt", "w+", encoding="utf-8") as file:
-            file.write(str(Sudoku.__sudoku_to_str(self.current_field)) + "\n")
-            file.write(str(Sudoku.__sudoku_to_str(self.field)) + "\n")
+    """Работа с текущим полем"""
 
-    # Загружаем игру из файла
-    @staticmethod
-    def __upload_play(name):
-        # Построчно заполняем self
-        for ind, line in enumerate(Sudoku.__reader(name + ".txt")):
-            if ind == 0:
-                encoding_cur_field = line[1:]
-            elif ind == 1:
-                encoding_field = line[1:]
+    def is_correct_event(self, i, j, value: int):
+        return self.__check_cell(i, j, value, is_main_field=False)
 
-        # Дешифруем поля, получаем строки
-        current_field, field = Sudoku.__decoding(encoding_cur_field.encode("utf-8"),
-                                                 encoding_field.encode("utf-8"))
-
-        # Перевод поля из строки в поле (np.array)
-        sudoku = Sudoku(is_generated=False)
-        sudoku.current_field = Sudoku.__str_to_sudoku(current_field)
-        sudoku.field = Sudoku.__str_to_sudoku(field)
-        print(sudoku.current_field, sudoku.field, sep="\n")
-        return sudoku
-
-    # Кодируем игровые поля
-    def __encoding(self):
-        # Переводим поля в строки
-        current_field_str = Sudoku.__sudoku_to_str(self.current_field)
-        field_str = Sudoku.__sudoku_to_str(self.field)
-
-        # Кодируем поля
-        # Возращаем байты
-        return base64.b64encode(current_field_str.encode("utf-8")), \
-               base64.b64encode(field_str.encode("utf-8"))
-
-    # Декодируем поля из файла
-    @staticmethod
-    def __decoding(current_field, field):
-        # Возращаем стороки
-        return base64.b64decode(current_field).decode("utf-8"), \
-               base64.b64decode(field).decode("utf-8")
-
-    # Алгоритмы перемешивания судоку
+    """Алгоритмы перемешивания судоку"""
 
     # Транспонирование судоку
     def transpose(self):
@@ -262,11 +224,12 @@ class Sudoku:
                 values.append(v)
         return tuple(values)
 
-    # Проверки на цифры
+    """Проверки на цифры"""
 
     # Проверка, можно ли поставить цифру number на вертикале i+1 (нумерация с 0)
-    def __check_vertical(self, i, number):
-        for array in self.field:
+    def __check_vertical(self, i, number, is_main_field=True):
+        iterable = self.field if is_main_field else self.current_field
+        for array in iterable:
             for ind, elem in enumerate(array):
                 if ind == i and elem == number:
                     return False
@@ -274,11 +237,13 @@ class Sudoku:
         return True
 
     # Проверка, можно ли поставить цифру number на горизонтали j+1 (нумерация с 0)
-    def __check_horizontal(self, j, number):
-        return False if number in self.field[j] else True
+    def __check_horizontal(self, j, number, is_main_field=True):
+        iterable = self.field if is_main_field else self.current_field
+        return False if number in iterable[j] else True
 
     # Проверка, можно ли поставить цифру number в этот квадрат
-    def __check_square(self, i, j, number):
+    def __check_square(self, i, j, number, is_main_field=True):
+        iterable = self.field if is_main_field else self.current_field
         # Правый верхний угол квадрата
         start_i = 3 * (i // 3)
         start_j = 3 * (j // 3)
@@ -286,8 +251,8 @@ class Sudoku:
         # Проверяем верхнюю горизонталь и правую вертикаль
         # Для первого квадрата с координатами (0; 0): (0; 0), (0; 1), (0; 2), (1; 0), (2; 0)
         for ind in range(3):
-            if number == self.field[start_j, start_i + ind] or \
-                    number == self.field[start_j + ind, start_i]:
+            if number == iterable[start_j, start_i + ind] or \
+                    number == iterable[start_j + ind, start_i]:
                 return False
 
         # Координаты центра квадрата
@@ -297,19 +262,76 @@ class Sudoku:
         # Проверяем клетки квадрата 2x2
         # Для первого квадрата с координатами (0; 0): (1; 1), (1; 2), (2; 1)
         for ind in range(2):
-            if number == self.field[start_j, start_i + ind] or \
-                    number == self.field[start_j + ind, start_i]:
+            if number == iterable[start_j, start_i + ind] or \
+                    number == iterable[start_j + ind, start_i]:
                 return False
 
         # Проверка последней клетки
         # Для первого квадрата с координатами (0; 0): (2; 2)
-        return False if number == self.field[start_j + 1, start_i + 1] else True
+        return False if number == iterable[start_j + 1, start_i + 1] else True
 
     # Проверка, можно ли поставить цифру number на поле (j; i)
-    def __check_cell(self, i, j, number):
-        return self.__check_horizontal(j, number) and \
-               self.__check_vertical(i, number) and \
-               self.__check_square(i, j, number)
+    def __check_cell(self, i, j, number, is_main_field=True):
+        return self.__check_horizontal(j, number, is_main_field) and \
+               self.__check_vertical(i, number, is_main_field) and \
+               self.__check_square(i, j, number, is_main_field)
+
+    """Сохранение/загрузка игры"""
+
+    def save_game(self, name):
+        cur_field, field, start_field = self.__encoding()
+        with open(name + ".txt", "w+", encoding="utf-8") as file:
+            file.write(str(cur_field) + "\n")
+            file.write(str(field) + "\n")
+            file.write(str(start_field) + "\n")
+
+    # Загружаем игру из файла
+    @staticmethod
+    def __upload_play(name):
+        # Построчно заполняем self
+        for ind, line in enumerate(Sudoku.__reader(name + ".txt")):
+            if ind == 0:
+                encoding_cur_field = line[1:]
+            elif ind == 1:
+                encoding_field = line[1:]
+            elif ind == 2:
+                encoding_start_field = line[1:]
+
+        # Дешифруем поля, получаем строки
+        current_field, field, start_field = Sudoku.__decoding(encoding_cur_field.encode("utf-8"),
+                                                              encoding_field.encode("utf-8"),
+                                                              encoding_start_field.encode("utf-8"))
+
+        # Перевод поля из строки в поле (np.array)
+        sudoku = Sudoku(is_generated=False)
+        sudoku.current_field = Sudoku.__str_to_sudoku(current_field)
+        sudoku.field = Sudoku.__str_to_sudoku(field)
+        sudoku.start_field = Sudoku.__str_to_sudoku(start_field)
+        print(sudoku.current_field, sudoku.field, sep="\n")
+        return sudoku
+
+    # Кодируем игровые поля
+    def __encoding(self):
+        # Переводим поля в строки
+        current_field_str = Sudoku.__sudoku_to_str(self.current_field)
+        field_str = Sudoku.__sudoku_to_str(self.field)
+        start_field_str = Sudoku.__sudoku_to_str(self.start_field)
+
+        # Кодируем поля
+        # Возращаем байты
+        return base64.b64encode(current_field_str.encode("utf-8")), \
+               base64.b64encode(field_str.encode("utf-8")), \
+               base64.b64encode(start_field_str.encode("utf-8"))
+
+    # Декодируем поля из файла
+    @staticmethod
+    def __decoding(current_field, field, start_field):
+        # Возращаем стороки
+        return base64.b64decode(current_field).decode("utf-8"), \
+               base64.b64decode(field).decode("utf-8"), \
+               base64.b64decode(start_field).decode("utf-8")
+
+    """Работа со строками/файлами"""
 
     # Считываем поле судоку из файла
     def read_field(self, filename: str):
