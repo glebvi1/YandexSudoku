@@ -81,27 +81,6 @@ class Sudoku:
         self.start_field = copy.deepcopy(self.field)
         self.field = copy.deepcopy(field)
 
-    def get_square_on_field(self, i, j):
-        if i <= 2:
-            start_i = 0
-        elif i <= 5:
-            start_i = 3
-        else:
-            start_i = 6
-        if j <= 2:
-            start_j = 0
-        elif j <= 5:
-            start_j = 3
-        else:
-            start_j = 6
-        coords = []
-
-        for cur_i in range(start_i, start_i + 3):
-            for cur_j in range(start_j, start_j + 3):
-                coords.append((cur_i, cur_j))
-
-        return coords
-
     def solve(self):
         """Определяем, есть ли у судоку единственное решение"""
         # Возможные варианты цифры для соответствующего поля
@@ -153,6 +132,9 @@ class Sudoku:
 
     def is_correct_event(self, i, j, value: int):
         return self.__check_cell(i, j, value, is_main_field=False)
+
+    def is_win(self):
+        return np.count_nonzero(self.current_field == 0) == 0
 
     """Алгоритмы перемешивания судоку"""
 
@@ -225,6 +207,27 @@ class Sudoku:
         return tuple(values)
 
     """Проверки на цифры"""
+
+    def get_square_on_field(self, i, j):
+        if i <= 2:
+            start_i = 0
+        elif i <= 5:
+            start_i = 3
+        else:
+            start_i = 6
+        if j <= 2:
+            start_j = 0
+        elif j <= 5:
+            start_j = 3
+        else:
+            start_j = 6
+        coords = []
+
+        for cur_i in range(start_i, start_i + 3):
+            for cur_j in range(start_j, start_j + 3):
+                coords.append((cur_i, cur_j))
+
+        return coords
 
     # Проверка, можно ли поставить цифру number на вертикале i+1 (нумерация с 0)
     def __check_vertical(self, i, number, is_main_field=True):

@@ -2,6 +2,7 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import QWidget, QPushButton, QRadioButton
 
 from ui.SaveSudokuDialog import SaveSudokuDialog
+from ui.WinDialog import WinDialog
 
 
 class GameWindow(QWidget):
@@ -81,6 +82,11 @@ class GameWindow(QWidget):
             self.sudoku.current_field[y][x] = value
             print(self.sudoku.current_field)
             pres_button.setText(self.current_value)
+
+        if self.sudoku.is_win():
+            print("WIN")
+            win = WinDialog(self.parent)
+            win.show()
 
     def __save_sudoku(self):
         save = SaveSudokuDialog(self.parent, self.sudoku)
