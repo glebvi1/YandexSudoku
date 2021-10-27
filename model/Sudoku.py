@@ -66,7 +66,7 @@ class Sudoku:
                 temp = self.field[i][j]
                 self.field[i][j] = 0
 
-                option_elem = self._generate_cell_value(j, i)
+                option_elem = self.generate_cell_value(j, i)
                 print(self.field)
                 print(option_elem)
                 if len(option_elem) != 1:
@@ -96,7 +96,7 @@ class Sudoku:
                 # Для пустого поля
                 if cell == 0:
                     # Генерируем все возможные варинты для поля (j; i)
-                    values = self._generate_cell_value(i, j)
+                    values = self.generate_cell_value(i, j)
 
                     # Решений нет
                     if len(values) == 0:
@@ -134,7 +134,11 @@ class Sudoku:
         return self.__check_cell(i, j, value, is_main_field=False)
 
     def is_win(self):
-        return np.count_nonzero(self.current_field == 0) == 0
+        for i in range(9):
+            for j in range(9):
+                if self.field[i][j] != self.current_field[i][j]:
+                    return False
+        return True
 
     """Алгоритмы перемешивания судоку"""
 
@@ -199,10 +203,10 @@ class Sudoku:
             func()
 
     # Метод, возращаем все возможные варианты клеток для поля (j; i) в виде кортежа
-    def _generate_cell_value(self, i, j) -> tuple:
+    def generate_cell_value(self, i, j, is_main_field=True) -> tuple:
         values = []
         for v in range(1, 10):
-            if self.__check_cell(i, j, v):
+            if self.__check_cell(i, j, v, is_main_field):
                 values.append(v)
         return tuple(values)
 

@@ -8,6 +8,7 @@ from model.Sudoku import Sudoku
 class NewGameWindow(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
+        self.parent = parent
         uic.loadUi('ui/new_game.ui', self)
         self.buttons = (self.btn_easy, self.btn_middle, self.btn_hard)
         self.widgets = [self.label, self.label_2]
@@ -34,5 +35,5 @@ class NewGameWindow(QWidget):
         for widget in self.widgets:
             widget.hide()
 
-        game = GameWindow(self, sudoku)
+        game = GameWindow(self.parent, sudoku)
         game.show()
