@@ -4,14 +4,18 @@ from ui.WinDialog import WinDialog
 
 
 class CellWidget(QWidget):
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
+        """
+        :param parent: Родитель, MainWindow
+        """
         super().__init__(parent)
         self.button = QPushButton(self)
         self.button.clicked.connect(self.__draw)
         self.parent = parent
         self.is_drawn_in_pencil = False
 
-    def __draw(self):
+    def __draw(self) -> None:
+        """Рисуем на gui"""
         if self.parent.current_value == "0":
             return
 
@@ -45,20 +49,28 @@ class CellWidget(QWidget):
             win = WinDialog(self.parent)
             win.show()
 
-    def __draw_in_sudoku(self, x, y, value: int):
-        """Изменяем судоку"""
+    def __draw_in_sudoku(self, x: int, y: int, value: int) -> None:
+        """Изменяем судоку
+        :param x: номер столбеца
+        :param y: номер строки
+        :param value: значение на эту клетку
+        """
         self.parent.sudoku.current_field[y][x] = value
         print(self.parent.sudoku.current_field)
 
-    def __draw_pen(self, str_value: str):
-        """Изменяем gui ручкой"""
+    def __draw_pen(self, str_value: str) -> None:
+        """Рисуем ручкой
+        :param str_value: текст на эту кнопку
+        """
         print(str_value)
         self.button.setText(str_value)
         self.button.setStyleSheet('QPushButton {color: black;}')
         self.is_drawn_in_pencil = False
 
-    def __draw_pencil(self, str_value: str):
-        """Изменяем gui карандашом"""
+    def __draw_pencil(self, str_value: str) -> None:
+        """Рисуем карандашом
+        :param str_value: добавляем к текущем значениям на кнопке
+        """
         self.is_drawn_in_pencil = True
         text = self.button.text()
         if text == "":
@@ -82,7 +94,8 @@ class CellWidget(QWidget):
         self.button.setText(text)
         self.button.setStyleSheet('QPushButton {color: red; font-size: 10px;}')
 
-    def update_button(self):
+    def update_button(self) -> None:
+        """Обновляем кнопки с карандашом"""
         if self.is_drawn_in_pencil:
             print("update")
             name = self.button.objectName()[3:]

@@ -6,29 +6,31 @@ from ui.GameWindow import GameWindow
 
 
 class UploadSudokuWindow(QWidget):
-    def __init__(self, parent):
+
+    def __init__(self, parent) -> None:
+        """
+        :param parent: MainWindow
+        """
         super().__init__(parent)
         self.parent = parent
         uic.loadUi('ui/upload_sudoku.ui', self)
-        self.__setup_ui()
-
-    def __setup_ui(self):
         self.btn_search.clicked.connect(self.__create_sudoku_from_file)
+        self.widgets = (self.error, self.btn_search, self.filename, self.label)
 
-    def __create_sudoku_from_file(self):
+    def __create_sudoku_from_file(self) -> None:
+        """Запуск игрового окна с судокой из файла
+        Метод перехватывает FileNotFoundError"""
         filename = self.filename.text()
         if filename == "":
             self.error.setText("Пустое поле!")
             return
         try:
             sudoku = Sudoku.sudoku_from_file(filename)
-        except FileNotFoundError as error:
+        except FileNotFoundError:
             self.error.setText("Такого файла нет!")
             return
 
-        self.error.hide()
-        self.btn_search.hide()
-        self.filename.hide()
-        self.label.hide()
+        for widget in self.widgets:
+            widget.hide()
         game = GameWindow(self.parent, sudoku)
         game.show()

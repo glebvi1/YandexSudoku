@@ -6,7 +6,10 @@ from model.Sudoku import Sudoku
 
 
 class NewGameWindow(QWidget):
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
+        """
+        :param parent: MainWindow
+        """
         super().__init__(parent)
         self.parent = parent
         uic.loadUi('ui/new_game.ui', self)
@@ -16,11 +19,14 @@ class NewGameWindow(QWidget):
 
         self.__setup_ui()
 
-    def __setup_ui(self):
+    def __setup_ui(self) -> None:
+        """Подключаем кнопки к генератору судок"""
         for button in self.buttons:
             button.clicked.connect(self.__generate_sudoku)
 
-    def __generate_sudoku(self):
+    def __generate_sudoku(self) -> None:
+        """Метод запускает генератор судоку по уровню сложности.
+        Затем запускает игровое окно"""
         name = self.sender().objectName()[4:]
 
         if name == "easy":

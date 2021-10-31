@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import base64
 import copy
 import random
@@ -6,31 +8,37 @@ import numpy as np
 
 
 class Sudoku:
-    def __init__(self, n=0, is_generated=True):
+    def __init__(self, n=0, is_generated=True) -> None:
+        """
+        :param n: сложность сгенирированной судику
+        :param is_generated: нужно ли генерировать судоку
+        """
         self.n = n
         self.field = np.array([])
 
         # Текущее состояние поля
-        self.current_field = []
+        self.current_field = np.array([])
 
         # Поля для решения судоку программой
-        self.solved_field = []
+        self.solved_field = np.array([])
         self.__open_cells = 0
 
         # Начальное поле
-        self.start_field = []
+        self.start_field = np.array([])
 
         if is_generated:
             self.generate_field()
 
     @classmethod
-    def sudoku_from_file(cls, filename: str):
-        """Создаем судоку по имени файла. Может бросать FileNotFoundError"""
+    def sudoku_from_file(cls, filename: str) -> Sudoku:
+        """Создаем судоку по имени файла. Может бросать FileNotFoundError
+        :param filename: имя файла, с которого генерируется судоку
+        """
         return cls(is_generated=False).__upload_play(filename)
 
     """Генерация судоку"""
 
-    def generate_field(self):
+    def generate_field(self) -> Sudoku:
         """
         Генерируем поле судоку с n заполнеными клетками
         n - сложность уровня (или возможное кол-во пустых строк)
@@ -50,8 +58,11 @@ class Sudoku:
 
         return self
 
-    def __delete_cells(self, difficulty):
-        """Удаляем клетки после перемешивания судоку"""
+    def __delete_cells(self, difficulty) -> None:
+        """Удаляем клетки после перемешивания судоку
+        :param difficulty: количество открытых клеток; если алгоритм легкий,
+        то difficulty=81
+        """
         ind = 0
         open_cells = 0
         looks_cells = [[False for _ in range(9)] for _ in range(9)]
@@ -78,7 +89,7 @@ class Sudoku:
 
         self.current_field = copy.deepcopy(self.start_field)
 
-    def solve_easy_sudoku(self):
+    def solve_easy_sudoku(self) -> bool:
         """Решаем судоку простым способом"""
         open_cells = 0
         for i, arr in enumerate(self.solved_field):
@@ -104,7 +115,12 @@ class Sudoku:
             self.__open_cells = open_cells
             self.solve_easy_sudoku()
 
-    def solve_hard_sudoku(self):
+    def solve_hard_sudoku(self) -> bool:
+        """Метод решает судоку перебором всех возможных вариантов"""
+        solve = self.solve_easy_sudoku()
+        if solve:
+            return True
+
         for i, arr in enumerate(self.solved_field):
             for j, elem in enumerate(arr):
                 if elem != 0:
@@ -121,10 +137,16 @@ class Sudoku:
 
     """Работа с текущим полем"""
 
-    def is_correct_event(self, i, j, value: int):
+    def is_correct_event(self, i, j, value: int) -> bool:
+        """ Проверяем, возможно ли self.current_field[i][j] = value
+        :param i: номер столбца
+        :param j: номер строки
+        :param value: значение
+        """
         return self.__check_cell(i, j, value, is_main_field=False)
 
-    def is_win(self):
+    def is_win(self) -> bool:
+        """Решена ли судоку?"""
         for i in range(9):
             for j in range(9):
                 if self.field[i][j] != self.current_field[i][j]:
@@ -133,18 +155,18 @@ class Sudoku:
 
     """Алгоритмы перемешивания судоку"""
 
-    # Транспонирование судоку
-    def transpose(self):
+    def transpose(self) -> None:
+        """Транспонирование судоку"""
         self.field = self.field.transpose()
 
-    # Меняем строки местами в пределах одного квадрата
-    def swap_rows(self):
+    def swap_rows(self) -> None:
+        """Меняем строки местами в пределах одного квадрата"""
         self.transpose()
         self.swap_columns()
         self.transpose()
 
-    # Меняем столбцы местами пределах одного квадрата
-    def swap_columns(self):
+    def swap_columns(self) -> None:
+        """Меняем столбцы местами пределах одного квадрата"""
         # Выбираем первую колонку
         j1 = random.randint(0, 8)
 
@@ -161,8 +183,8 @@ class Sudoku:
         self.field[j2], self.field[j1] = \
             copy.deepcopy(self.field[j1]), copy.deepcopy(self.field[j2])
 
-    # Меняем квадраты местами по горизонтали
-    def swap_square_to_horizontal(self):
+    def swap_square_to_horizontal(self) -> None:
+        """Меняем квадраты местами по горизонтали"""
         # Выбираем первый квадрат
         l = [0, 3, 6]
         j1 = random.choice(l)
@@ -175,14 +197,16 @@ class Sudoku:
         self.field[j1: (j1 + 3)], self.field[j2: (j2 + 3)] = \
             copy.deepcopy(self.field[j2: (j2 + 3)]), copy.deepcopy(self.field[j1: (j1 + 3)])
 
-    # Меняем квадраты местами по вертикали
-    def swap_square_to_vertical(self):
+    def swap_square_to_vertical(self) -> None:
+        """Меняем квадраты местами по вертикали"""
         self.transpose()
         self.swap_square_to_horizontal()
         self.transpose()
 
-    # Перемешиваем судоку, используя алгоритмы n раз
-    def __mix(self, n: int):
+    def __mix(self, n: int) -> None:
+        """Перемешиваем судоку
+        :param n: количество перемешиваний
+        """
         mix_func = (self.transpose,
                     self.swap_rows,
                     self.swap_columns,
@@ -193,8 +217,14 @@ class Sudoku:
             func = random.choice(mix_func)
             func()
 
-    # Метод, возращаем все возможные варианты клеток для поля (j; i) в виде кортежа
-    def generate_cell_value(self, i, j, is_solved_field=False, is_main_field=True) -> tuple:
+    def generate_cell_value(self, i: int, j: int, is_solved_field=False,
+                            is_main_field=True) -> tuple:
+        """Возращаем все возможные варианты клеток для поля (j; i) в виде кортежа
+        :param i: номер столбца
+        :param j: номер строки
+        :param is_solved_field: использовать поле solved_field, иначе is_main_field
+        :param is_main_field: использователь поле filed, иначе current_field
+        """
         values = []
         for v in range(1, 10):
             if self.__check_cell(i, j, v, is_solved_field, is_main_field):
@@ -203,8 +233,14 @@ class Sudoku:
 
     """Проверки на цифры"""
 
-    # Проверка, можно ли поставить цифру number на вертикале i+1 (нумерация с 0)
-    def __check_vertical(self, i, number, is_solved_field=False, is_main_field=True):
+    def __check_vertical(self, i: int, number: int, is_solved_field=False,
+                         is_main_field=True) -> bool:
+        """ Проверка, можно ли поставить цифру number на вертикале i+1 (нумерация с 0)
+        :param i: номер вертикали
+        :param number: значение, которое проверяем
+        :param is_solved_field: использовать поле solved_field, иначе is_main_field
+        :param is_main_field: использователь поле filed, иначе current_field
+        """
         iterable = self.field if is_main_field else self.current_field
         iterable = self.solved_field if is_solved_field else iterable
         for array in iterable:
@@ -214,70 +250,82 @@ class Sudoku:
 
         return True
 
-    # Проверка, можно ли поставить цифру number на горизонтали j+1 (нумерация с 0)
-    def __check_horizontal(self, j, number, is_solved_field=False, is_main_field=True):
+    def __check_horizontal(self, j: int, number: int, is_solved_field=False,
+                           is_main_field=True) -> bool:
+        """Проверка, можно ли поставить цифру number на горизонтали j+1 (нумерация с 0)
+        :param j: номер строки
+        :param number: значение, которое проверяем
+        :param is_solved_field: использовать поле solved_field, иначе is_main_field
+        :param is_main_field: использователь поле filed, иначе current_field
+        """
         iterable = self.field if is_main_field else self.current_field
         iterable = self.solved_field if is_solved_field else iterable
         return False if number in iterable[j] else True
 
-    # Проверка, можно ли поставить цифру number в этот квадрат
-    def __check_square(self, i, j, number, is_solved_field=False, is_main_field=True):
+    def __check_square(self, i: int, j: int, number, is_solved_field=False,
+                       is_main_field=True) -> bool:
+        """Проверка, можно ли поставить цифру number в этот квадрат
+        :param i: номер строки
+        :param j: номер столбца
+        :param number: значение, которое проверяем
+        :param is_solved_field: использовать поле solved_field, иначе is_main_field
+        :param is_main_field: использователь поле filed, иначе current_field
+        """
         iterable = self.field if is_main_field else self.current_field
         iterable = self.solved_field if is_solved_field else iterable
-        # Правый верхний угол квадрата
-        start_i = 3 * (i // 3)
-        start_j = 3 * (j // 3)
 
-        # Проверяем верхнюю горизонталь и правую вертикаль
-        # Для первого квадрата с координатами (0; 0): (0; 0), (0; 1), (0; 2), (1; 0), (2; 0)
-        for ind in range(3):
-            if number == iterable[start_j][start_i + ind] or \
-                    number == iterable[start_j + ind][start_i]:
-                return False
+        start_i = i - i % 3
+        start_j = j - j % 3
+        for ii in range(start_i, start_i + 3):
+            for jj in range(start_j, start_j + 3):
+                if iterable[jj][ii] == number:
+                    return False
+        return True
 
-        # Координаты центра квадрата
-        start_j += 1
-        start_i += 1
-
-        # Проверяем клетки квадрата 2x2
-        # Для первого квадрата с координатами (0; 0): (1; 1), (1; 2), (2; 1)
-        for ind in range(2):
-            if number == iterable[start_j][start_i + ind] or \
-                    number == iterable[start_j + ind][start_i]:
-                return False
-
-        # Проверка последней клетки
-        # Для первого квадрата с координатами (0; 0): (2; 2)
-        return False if number == iterable[start_j + 1][start_i + 1] else True
-
-    # Проверка, можно ли поставить цифру number на поле (j; i)
-    def __check_cell(self, i, j, number, is_solved_field=False, is_main_field=True):
+    def __check_cell(self, i: int, j: int, number: int, is_solved_field=False,
+                     is_main_field=True) -> bool:
+        """ Проверка, можно ли поставить цифру number на поле (j; i)
+        :param i: номер столбца
+        :param j: номер строки
+        :param number: значение, которое проверяем
+        :param is_solved_field: использовать поле solved_field, иначе is_main_field
+        :param is_main_field: использователь поле filed, иначе current_field
+        """
         return self.__check_horizontal(j, number, is_solved_field, is_main_field) and \
                self.__check_vertical(i, number, is_solved_field, is_main_field) and \
                self.__check_square(i, j, number, is_solved_field, is_main_field)
 
     """Сохранение/загрузка игры"""
 
-    def save_game(self, name):
+    def save_game(self, name: str) -> None:
+        """ Сохраняем судоку в файл
+        :param name: имя файла без расширения
+        """
         cur_field, field, start_field = self.__encoding()
         with open(name + ".txt", "w+", encoding="utf-8") as file:
+            file.write(str(self.n) + "\n")
             file.write(str(cur_field) + "\n")
             file.write(str(field) + "\n")
             file.write(str(start_field) + "\n")
 
-    # Загружаем игру из файла
     @staticmethod
-    def __upload_play(name):
+    def __upload_play(name: str) -> Sudoku:
+        """ Загружаем игру из файла
+        :param name: Имя файла без расширения
+        """
         encoding_cur_field = ""
         encoding_field = ""
         encoding_start_field = ""
+        n = 0
         # Построчно заполняем self
         for ind, line in enumerate(Sudoku.__reader(name + ".txt")):
             if ind == 0:
-                encoding_cur_field = line[1:]
+                n = int(line[0])
             elif ind == 1:
-                encoding_field = line[1:]
+                encoding_cur_field = line[1:]
             elif ind == 2:
+                encoding_field = line[1:]
+            elif ind == 3:
                 encoding_start_field = line[1:]
 
         # Дешифруем поля, получаем строки
@@ -286,52 +334,59 @@ class Sudoku:
                                                               encoding_start_field.encode("utf-8"))
 
         # Перевод поля из строки в поле (np.array)
-        sudoku = Sudoku(is_generated=False)
+        sudoku = Sudoku(n=n, is_generated=False)
         sudoku.current_field = Sudoku.__str_to_sudoku(current_field)
         sudoku.field = Sudoku.__str_to_sudoku(field)
         sudoku.start_field = Sudoku.__str_to_sudoku(start_field)
         print(sudoku.current_field, sudoku.field, sep="\n")
         return sudoku
 
-    # Кодируем игровые поля
-    def __encoding(self):
-        # Переводим поля в строки
+    def __encoding(self) -> tuple:
+        """Кодируем игровые поля"""
         current_field_str = Sudoku.__sudoku_to_str(self.current_field)
         field_str = Sudoku.__sudoku_to_str(self.field)
         start_field_str = Sudoku.__sudoku_to_str(self.start_field)
 
-        # Кодируем поля
-        # Возращаем байты
         return base64.b64encode(current_field_str.encode("utf-8")), \
                base64.b64encode(field_str.encode("utf-8")), \
                base64.b64encode(start_field_str.encode("utf-8"))
 
-    # Декодируем поля из файла
     @staticmethod
-    def __decoding(current_field, field, start_field):
-        # Возращаем стороки
+    def __decoding(current_field: bytes, field: bytes, start_field: bytes) -> tuple:
+        """Декодируем поля из файла
+        :param current_field: текущее поле
+        :param field: заполненое поле
+        :param start_field: начальное поле
+        """
         return base64.b64decode(current_field).decode("utf-8"), \
                base64.b64decode(field).decode("utf-8"), \
                base64.b64decode(start_field).decode("utf-8")
 
     """Работа со строками/файлами"""
 
-    # Считываем поле судоку из файла
-    def read_field(self, filename: str):
+    def read_field(self, filename: str) -> Sudoku:
+        """Считываем поле судоку из файла
+        :param filename: имя файла
+        """
         field = []
         for line in Sudoku.__reader(filename):
             field.append(list(map(int, line.split(" "))))
         self.field = np.array(field)
         return self
 
-    # Генератор, считывающий данные из файла
     @staticmethod
-    def __reader(filename: str):
+    def __reader(filename: str) -> str:
+        """ Генератор, считывающий данные из файла
+        :param filename: имя файла
+        """
         for line in open(filename):
             yield line
 
     @staticmethod
-    def __sudoku_to_str(sudoku):
+    def __sudoku_to_str(sudoku: np.ndarray) -> str:
+        """Переводим поле в строку
+        :param sudoku: поле
+        """
         result = ""
         for arr in sudoku:
             for elem in arr:
@@ -340,7 +395,10 @@ class Sudoku:
         return result
 
     @staticmethod
-    def __str_to_sudoku(string: str):
+    def __str_to_sudoku(string: str) -> np.ndarray:
+        """Из строчки получаем поле
+        :param string: поле в виде строки
+        """
         sudoku = []
         for arr in string.split("\n"):
             temp = []
@@ -351,8 +409,8 @@ class Sudoku:
 
         return np.array([np.array(xi) for xi in sudoku])
 
-    # Красивый вывод судоку
-    def __str__(self):
+    def __str__(self) -> str:
+        """Красивый вывод судоку"""
         result = ""
         for j, array in enumerate(self.field):
             for i, elem in enumerate(array):

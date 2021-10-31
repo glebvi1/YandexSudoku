@@ -9,18 +9,21 @@ from UploadSudokuWindow import UploadSudokuWindow
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self) -> None:
+        """Конструктор MainWindow"""
         super().__init__()
         uic.loadUi('ui/main_window.ui', self)
         self.buttons = (self.btn_settings, self.btn_new_game, self.btn_upload_game)
 
         self.__setup_ui()
 
-    def __setup_ui(self):
+    def __setup_ui(self) -> None:
+        """Установка слушателей на кнопки"""
         for button in self.buttons:
             button.clicked.connect(self.__navigation)
 
-    def __navigation(self):
+    def __navigation(self) -> None:
+        """Переключения на окона: 'новая игра', 'загрузка игры', 'настройки'"""
         name = self.sender().objectName()[4:]
         if name == "settings":
             settings = SettingsDialog(self)

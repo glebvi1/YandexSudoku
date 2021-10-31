@@ -12,7 +12,11 @@ class GameWindow(QWidget):
     error_text = ""
     do_paint = False
 
-    def __init__(self, parent, sudoku):
+    def __init__(self, parent, sudoku) -> None:
+        """
+        :param parent: Родитель, MainWindow
+        :param sudoku: Сгенирированная судоку
+        """
         super().__init__(parent)
         self.sudoku = sudoku
         self.parent = parent
@@ -20,14 +24,16 @@ class GameWindow(QWidget):
 
         self.__setup_ui()
 
-    def __setup_ui(self):
+    """Создание стартовой сетки"""
+
+    def __setup_ui(self) -> None:
+        """Отображение первоначального ui"""
         self.btn_save.clicked.connect(self.__save_sudoku)
         self.__init_gui_sudoku()
         self.__init_radio_buttons()
 
-    """Создание стартовой сетки"""
-
-    def __init_radio_buttons(self):
+    def __init_radio_buttons(self) -> None:
+        """Отображаем radio buttons: цифры 1-9 и ручка/карандаш"""
         radios = (self.radio1, self.radio2, self.radio3, self.radio4,
                   self.radio5, self.radio6, self.radio7, self.radio8,
                   self.radio9, self.radio100)
@@ -37,7 +43,8 @@ class GameWindow(QWidget):
         self.radio_pen.toggled.connect(self.__change_brush)
         self.radio_pencil.toggled.connect(self.__change_brush)
 
-    def __init_gui_sudoku(self):
+    def __init_gui_sudoku(self) -> None:
+        """Отображаем стартовое поле судоку"""
         c = 0
         for i in range(9):
             for j in range(9):
@@ -60,21 +67,28 @@ class GameWindow(QWidget):
 
     """Слушатели"""
 
-    def __change_digit(self):
+    def __change_digit(self) -> None:
+        """Меняем выбранную цифру"""
         name = self.sender().objectName()
         print(name)
         self.current_value = name[5:]
 
-    def __change_brush(self):
+    def __change_brush(self) -> None:
+        """Меняем ручку на карандаш или наоборот"""
         name = self.sender().objectName()[6:]
         print(name)
         self.is_pen = name == "pen"
 
-    def __save_sudoku(self):
+    def __save_sudoku(self) -> None:
+        """Запускаем диалоговое окно сохранения судоку"""
         save = SaveSudokuDialog(self.parent, self.sudoku)
         save.show()
 
     def paintEvent(self, event: QtGui.QPaintEvent) -> None:
+        """Перерисовка экрана:
+        Изменение текста
+        Перерисовка ячеек с карандашом
+        """
         self.error.setText(self.error_text)
         if self.do_paint:
             from ui.CellWidget import CellWidget
