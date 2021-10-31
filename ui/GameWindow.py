@@ -2,6 +2,7 @@ from PyQt5 import QtGui
 from PyQt5 import uic
 from PyQt5.QtWidgets import QWidget
 
+from ui.CellWidget import CellWidget
 from ui.SaveSudokuDialog import SaveSudokuDialog
 
 
@@ -28,7 +29,7 @@ class GameWindow(QWidget):
 
     def __setup_ui(self) -> None:
         """Отображение первоначального ui"""
-        self.btn_save.clicked.connect(self.__save_sudoku)
+        self.apply.clicked.connect(self.__do_event)
         self.__init_gui_sudoku()
         self.__init_radio_buttons()
 
@@ -79,10 +80,31 @@ class GameWindow(QWidget):
         print(name)
         self.is_pen = name == "pen"
 
+    """Применить действия"""
+
+    def __do_event(self):
+        text = str(self.event.currentText())
+        print(text)
+        if text == "Сохранить игру":
+            self.__save_sudoku()
+        elif text == "Подсказать следующих ход":
+            pass
+        elif text == "Разметить поле карандашом":
+            self.__draw_pencil_all()
+
     def __save_sudoku(self) -> None:
         """Запускаем диалоговое окно сохранения судоку"""
         save = SaveSudokuDialog(self.parent, self.sudoku)
         save.show()
+
+    def __draw_pencil_all(self) -> None:
+        """Помечаем карандашом все клетки"""
+        for i in range(9):
+            for j in range(9):
+                cell = self.findChild(CellWidget, f"cell{str(i) + str(j)}")
+                cell.draw_all_variants(j, i)
+
+    """Перерисовка экрана"""
 
     def paintEvent(self, event: QtGui.QPaintEvent) -> None:
         """Перерисовка экрана:
@@ -91,7 +113,6 @@ class GameWindow(QWidget):
         """
         self.error.setText(self.error_text)
         if self.do_paint:
-            from ui.CellWidget import CellWidget
             for i in range(9):
                 for j in range(9):
                     cell = self.findChild(CellWidget, f"cell{str(i) + str(j)}")

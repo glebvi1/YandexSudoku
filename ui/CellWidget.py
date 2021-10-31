@@ -120,3 +120,28 @@ class CellWidget(QWidget):
 
             self.button.setText(new_text)
             self.button.setStyleSheet('QPushButton {color: red; font-size: 10px;}')
+
+    def draw_all_variants(self, x, y) -> None:
+        """Помечаем кнопку всеми вариантами"""
+        if self.button.text() != "" and not self.is_drawn_in_pencil:
+            return
+        self.is_drawn_in_pencil = True
+
+        variants = self.parent.sudoku.generate_cell_value(x, y, is_main_field=False)
+        self.button.setText(CellWidget.__variants_to_string(variants))
+        self.button.setStyleSheet('QPushButton {color: red; font-size: 10px;}')
+
+    @staticmethod
+    def __variants_to_string(variants: tuple) -> str:
+        """
+        :param variants: кортеж из int-ов
+        """
+        result = ""
+        index = 0
+        for elem in variants:
+            if index % 3 == 0 and index != 0:
+                result += "\n"
+            result += str(elem)
+            index += 1
+
+        return result

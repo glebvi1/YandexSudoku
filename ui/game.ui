@@ -13,19 +13,6 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QToolButton" name="toolButton">
-   <property name="geometry">
-    <rect>
-     <x>500</x>
-     <y>20</y>
-     <width>55</width>
-     <height>45</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>...</string>
-   </property>
-  </widget>
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
@@ -36,7 +23,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Игра</string>
+    <string>    Игра</string>
    </property>
   </widget>
   <widget class="QWidget" name="gridLayoutWidget">
@@ -49,19 +36,6 @@
     </rect>
    </property>
    <layout class="QGridLayout" name="ui_field"/>
-  </widget>
-  <widget class="QPushButton" name="btn_save">
-   <property name="geometry">
-    <rect>
-     <x>334</x>
-     <y>20</y>
-     <width>150</width>
-     <height>45</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Сохранить игру</string>
-   </property>
   </widget>
   <widget class="QWidget" name="horizontalLayoutWidget">
    <property name="geometry">
@@ -191,6 +165,44 @@
    </property>
    <property name="text">
     <string/>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="event">
+   <property name="geometry">
+    <rect>
+     <x>260</x>
+     <y>11</y>
+     <width>331</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <item>
+    <property name="text">
+     <string>Сохранить игру</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Подсказать следующий ход</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Разметить поле карандашом</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QPushButton" name="apply">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>12</y>
+     <width>181</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Применить</string>
    </property>
   </widget>
  </widget>
