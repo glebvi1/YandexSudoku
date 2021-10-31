@@ -405,7 +405,8 @@ class Sudoku:
             for elem in arr:
                 print(elem)
                 temp.append(int(elem))
-            sudoku.append(temp)
+            if len(temp) != 0:
+                sudoku.append(temp)
 
         return np.array([np.array(xi) for xi in sudoku])
 
