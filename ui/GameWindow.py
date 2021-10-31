@@ -38,6 +38,7 @@ class GameWindow(QWidget):
         self.radio_pencil.toggled.connect(self.__change_brush)
 
     def __init_gui_sudoku(self):
+        c = 0
         for i in range(9):
             for j in range(9):
                 from ui.CellWidget import CellWidget
@@ -48,12 +49,14 @@ class GameWindow(QWidget):
                     cell.button.setText(str(self.sudoku.start_field[i][j]))
                     cell.button.setStyleSheet('QPushButton {color: blue}')
                     cell.button.setEnabled(False)
+                    c += 1
                 elif self.sudoku.current_field[i][j] != 0:
                     cell.button.setText(str(self.sudoku.current_field[i][j]))
                     cell.button.setStyleSheet('QPushButton {color: black}')
                 else:
                     cell.button.setText("")
                 self.ui_field.addWidget(cell.button, i, j)
+        print(c)
 
     """Слушатели"""
 

@@ -20,6 +20,7 @@ class CellWidget(QWidget):
         value = int(self.parent.current_value)
         print(y, x)
 
+        # Удаление
         if value == 100:
             self.parent.sudoku.current_field[y][x] = 0
             self.button.setText("")
@@ -27,6 +28,7 @@ class CellWidget(QWidget):
             return
 
         if self.parent.sudoku.is_correct_event(x, y, value):
+            print("correct")
             if self.parent.is_pen:
                 self.__draw_in_sudoku(x, y, value)
                 self.__draw_pen(self.parent.current_value)
@@ -50,8 +52,10 @@ class CellWidget(QWidget):
 
     def __draw_pen(self, str_value: str):
         """Изменяем gui ручкой"""
+        print(str_value)
         self.button.setText(str_value)
         self.button.setStyleSheet('QPushButton {color: black;}')
+        self.is_drawn_in_pencil = False
 
     def __draw_pencil(self, str_value: str):
         """Изменяем gui карандашом"""

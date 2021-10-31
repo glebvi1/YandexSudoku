@@ -39,94 +39,85 @@ class Sudoku:
         n = 2 - сложный
         """
         self.field = np.array([[((i * 3 + i // 3 + j) % 9 + 1) for j in range(9)] for i in range(9)])
-        self.__mix(50)
+        self.__mix(100)
 
         if self.n == 0:
-            diff = 32
+            self.__delete_cells(81)
         elif self.n == 1:
-            diff = 30
+            self.__delete_cells(51)  # 30 открытых клеток
         else:
-            diff = 27
+            self.__delete_cells(54)  # 27 открытых клеток
 
-        self.__delete_cells(diff)
         return self
 
-    def __delete_cells(self, diff):
+    def __delete_cells(self, difficulty):
         """Удаляем клетки после перемешивания судоку"""
         ind = 0
+        open_cells = 0
         looks_cells = [[False for _ in range(9)] for _ in range(9)]
-        field = copy.deepcopy(self.field)
+        self.start_field = copy.deepcopy(self.field)
+        print(self.start_field, type(self.start_field), self.start_field.shape)
 
-        while ind < 81:
+        while ind < 81 and open_cells != difficulty:
             i, j = random.randint(0, 8), random.randint(0, 8)
 
             if not looks_cells[i][j]:
                 ind += 1
 
-                temp = self.field[i][j]
-                self.field[i][j] = 0
+                temp = self.start_field[i][j]
+                self.start_field[i][j] = 0
+                self.solved_field = copy.deepcopy(self.start_field)
 
-                option_elem = self.generate_cell_value(j, i)
-                print(self.field)
-                print(option_elem)
-                if len(option_elem) != 1:
-                    self.field[i][j] = temp
-                    continue
+                is_solvable = self.solve_hard_sudoku() if difficulty != 81 else self.solve_easy_sudoku()
+                if not is_solvable:
+                    self.start_field[i][j] = temp
                 else:
-                    self.field[i][j] = 0
+                    open_cells += 1
+
                 looks_cells[i][j] = True
 
-        print(field, self.field, self.current_field, self.start_field, sep="\n")
-        self.current_field = copy.deepcopy(self.field)
-        self.start_field = copy.deepcopy(self.field)
-        self.field = copy.deepcopy(field)
+        self.current_field = copy.deepcopy(self.start_field)
 
-    def solve(self):
-        """Определяем, есть ли у судоку единственное решение"""
-        # Возможные варианты цифры для соответствующего поля
-        option_solved = [[(0,) for _ in range(9)] for _ in range(9)]
+    def solve_easy_sudoku(self):
+        """Решаем судоку простым способом"""
+        open_cells = 0
+        for i, arr in enumerate(self.solved_field):
+            for j, elem in enumerate(arr):
+                if elem != 0:
+                    open_cells += 1
+                    continue
+                values = self.generate_cell_value(j, i, is_solved_field=True)
+                if len(values) == 1:
+                    self.solved_field[i][j] = values[0]
+                    open_cells += 1
+                    continue
+                elif len(values) == 0:
+                    return False
 
-        # Кол-во заполненых полей в судоку
-        filled_cells = 0
-
-        for j, array in enumerate(self.solved_field):
-            for i, cell in enumerate(array):
-                filled_cells += 1
-
-                # Для пустого поля
-                if cell == 0:
-                    # Генерируем все возможные варинты для поля (j; i)
-                    values = self.generate_cell_value(i, j)
-
-                    # Решений нет
-                    if len(values) == 0:
-                        # TODO: собственное исключение
-                        return None
-
-                    # Решение единственно, сохраняем его и вызываем этот метод еще раз
-                    elif len(values) == 1:
-                        self.solved_field[j][i] = values[0]
-                        option_solved[j][i] = 0,
-                        continue
-
-                    # Несколько решений
-                    else:
-                        option_solved[j][i] = values
-
-                        # Клетка еще не заполнена
-                        filled_cells -= 1
-
-        print(self.__open_cells, filled_cells)
-        # Судоку решена
-        if filled_cells == 81:
+        if open_cells == 81:
             self.__open_cells = 0
             return True
-        elif self.__open_cells == filled_cells:
+        if self.__open_cells == open_cells:
             self.__open_cells = 0
             return False
         else:
-            self.__open_cells = filled_cells
-            return self.solve()
+            self.__open_cells = open_cells
+            self.solve_easy_sudoku()
+
+    def solve_hard_sudoku(self):
+        for i, arr in enumerate(self.solved_field):
+            for j, elem in enumerate(arr):
+                if elem != 0:
+                    continue
+                for possible_variation in self.generate_cell_value(j, i, is_solved_field=True):
+                    self.solved_field[i][j] = possible_variation
+
+                    if self.solve_hard_sudoku():
+                        return True
+                    else:
+                        self.solved_field[i][j] = 0
+                return False
+        return True
 
     """Работа с текущим полем"""
 
@@ -203,39 +194,19 @@ class Sudoku:
             func()
 
     # Метод, возращаем все возможные варианты клеток для поля (j; i) в виде кортежа
-    def generate_cell_value(self, i, j, is_main_field=True) -> tuple:
+    def generate_cell_value(self, i, j, is_solved_field=False, is_main_field=True) -> tuple:
         values = []
         for v in range(1, 10):
-            if self.__check_cell(i, j, v, is_main_field):
+            if self.__check_cell(i, j, v, is_solved_field, is_main_field):
                 values.append(v)
         return tuple(values)
 
     """Проверки на цифры"""
 
-    def get_square_on_field(self, i, j):
-        if i <= 2:
-            start_i = 0
-        elif i <= 5:
-            start_i = 3
-        else:
-            start_i = 6
-        if j <= 2:
-            start_j = 0
-        elif j <= 5:
-            start_j = 3
-        else:
-            start_j = 6
-        coords = []
-
-        for cur_i in range(start_i, start_i + 3):
-            for cur_j in range(start_j, start_j + 3):
-                coords.append((cur_i, cur_j))
-
-        return coords
-
     # Проверка, можно ли поставить цифру number на вертикале i+1 (нумерация с 0)
-    def __check_vertical(self, i, number, is_main_field=True):
+    def __check_vertical(self, i, number, is_solved_field=False, is_main_field=True):
         iterable = self.field if is_main_field else self.current_field
+        iterable = self.solved_field if is_solved_field else iterable
         for array in iterable:
             for ind, elem in enumerate(array):
                 if ind == i and elem == number:
@@ -244,13 +215,15 @@ class Sudoku:
         return True
 
     # Проверка, можно ли поставить цифру number на горизонтали j+1 (нумерация с 0)
-    def __check_horizontal(self, j, number, is_main_field=True):
+    def __check_horizontal(self, j, number, is_solved_field=False, is_main_field=True):
         iterable = self.field if is_main_field else self.current_field
+        iterable = self.solved_field if is_solved_field else iterable
         return False if number in iterable[j] else True
 
     # Проверка, можно ли поставить цифру number в этот квадрат
-    def __check_square(self, i, j, number, is_main_field=True):
+    def __check_square(self, i, j, number, is_solved_field=False, is_main_field=True):
         iterable = self.field if is_main_field else self.current_field
+        iterable = self.solved_field if is_solved_field else iterable
         # Правый верхний угол квадрата
         start_i = 3 * (i // 3)
         start_j = 3 * (j // 3)
@@ -278,10 +251,10 @@ class Sudoku:
         return False if number == iterable[start_j + 1][start_i + 1] else True
 
     # Проверка, можно ли поставить цифру number на поле (j; i)
-    def __check_cell(self, i, j, number, is_main_field=True):
-        return self.__check_horizontal(j, number, is_main_field) and \
-               self.__check_vertical(i, number, is_main_field) and \
-               self.__check_square(i, j, number, is_main_field)
+    def __check_cell(self, i, j, number, is_solved_field=False, is_main_field=True):
+        return self.__check_horizontal(j, number, is_solved_field, is_main_field) and \
+               self.__check_vertical(i, number, is_solved_field, is_main_field) and \
+               self.__check_square(i, j, number, is_solved_field, is_main_field)
 
     """Сохранение/загрузка игры"""
 
@@ -295,6 +268,9 @@ class Sudoku:
     # Загружаем игру из файла
     @staticmethod
     def __upload_play(name):
+        encoding_cur_field = ""
+        encoding_field = ""
+        encoding_start_field = ""
         # Построчно заполняем self
         for ind, line in enumerate(Sudoku.__reader(name + ".txt")):
             if ind == 0:
@@ -393,81 +369,3 @@ class Sudoku:
                 s1 = "-" * 6
                 result += s1 + "+" + s1 + "-+" + s1 + "--"
         return result
-
-
-"""while it < 81:
-            i, j = random.randrange(0, 9, 1), random.randrange(0, 9, 1)
-            if not was_look[i][j]:
-                it += 1
-                was_look[i][j] = True
-
-                temp = self.field[i, j]
-                self.field[i, j] = 0
-                difficult -= 1  # Усложняем если убрали элемент
-
-                table_solution = []
-                for copy_i in range(0, 9):
-                    table_solution.append(self.field[copy_i][:])  # Скопируем в отдельный список
-
-                i_solution = 0
-                for solution in solver.solve_sudoku((example.n, example.n), table_solution):
-                    i_solution += 1  # Считаем количество решений
-
-                if i_solution != 1:  # Если решение не одинственное вернуть всё обратно
-                    example.table[i][j] = temp
-                    difficult += 1  # Облегчаем
-"""
-
-"""
-            coords = self.get_square_on_field(i, j)
-            for y, array in enumerate(self.field):
-                if b:
-                    break
-                for x, elem in enumerate(array):
-                    if y == j or i == x or (x, y) in coords:
-                        option_elem = self._generate_cell_value(y, x)
-
-                        if len(option_elem) != 1:
-                            continue
-                        elif len(option_elem) == 1:
-                            self.field[i][j] = 0
-                            difficult -= 1
-                            b = True
-                            break
-            if not b:
-                self.field[i][j] = temp
-"""
-
-"""        while diff != difficult:
-            inn+=1
-            # Берем рандомную ячейку
-            if difficult >= 55:
-                i, j = random.randint(0, 8), random.randint(0, 8)
-            else:
-                i, j = global_i, global_j
-                global_j += 1
-                if global_j == 9:
-                    global_j = 0
-                    global_i += 1
-                if global_i == 9:
-                    break
-            if self.field[i][j] == 0:
-                continue
-            #print(self.field)
-
-            temp = self.field[i][j]
-            self.field[i][j] = 0
-            b = False
-
-            self.solved_field = copy.deepcopy(self.field)
-
-            is_solved = self.solve()
-            if not is_solved or is_solved is None:
-                self.field[i, j] = temp
-                continue
-            difficult -= 1
-            print(difficult)
-            if difficult % 5 == 0:
-                print(self.field)
-                print()
-"""

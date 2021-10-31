@@ -30,7 +30,7 @@ class NewGameWindow(QWidget):
         else:
             n = 2
         print(n)
-        sudoku = Sudoku(n)
+        sudoku = Sudoku(n=n)
 
         for widget in self.widgets:
             widget.hide()
