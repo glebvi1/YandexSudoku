@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import copy
 import random
+from typing import Tuple
 from typing import Union
 
 import numpy as np
@@ -166,7 +167,7 @@ class Sudoku:
                     return False
         return True
 
-    def get_hint(self) -> tuple:
+    def get_hint(self) -> Tuple[int, int, int]:
         """Метод подсказывает следующий ход"""
         self.solved_field = copy.deepcopy(self.current_field)
         results = self.solve_easy_sudoku(one_digit=True)
@@ -188,7 +189,6 @@ class Sudoku:
             return min_i, min_j, self.field[min_i][min_j]
 
         return results
-
 
     """Алгоритмы перемешивания судоку"""
 
@@ -378,7 +378,7 @@ class Sudoku:
         print(sudoku.current_field, sudoku.field, sep="\n")
         return sudoku
 
-    def __encoding(self) -> tuple:
+    def __encoding(self) -> Tuple[bytes, bytes, bytes]:
         """Кодируем игровые поля"""
         current_field_str = Sudoku.__sudoku_to_str(self.current_field)
         field_str = Sudoku.__sudoku_to_str(self.field)
@@ -389,7 +389,7 @@ class Sudoku:
                base64.b64encode(start_field_str.encode("utf-8"))
 
     @staticmethod
-    def __decoding(current_field: bytes, field: bytes, start_field: bytes) -> tuple:
+    def __decoding(current_field: bytes, field: bytes, start_field: bytes) -> Tuple[str, str, str]:
         """Декодируем поля из файла
         :param current_field: текущее поле
         :param field: заполненое поле
