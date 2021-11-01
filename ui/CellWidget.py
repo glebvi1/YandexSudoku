@@ -35,8 +35,7 @@ class CellWidget(QWidget):
             print("correct")
             if self.parent.is_pen:
                 self.__draw_in_sudoku(x, y, value)
-                self.__draw_pen(self.parent.current_value)
-                self.parent.do_paint = True
+                self.draw_pen(self.parent.current_value)
             else:
                 self.__draw_pencil(self.parent.current_value)
             self.parent.error_text = ""
@@ -58,7 +57,7 @@ class CellWidget(QWidget):
         self.parent.sudoku.current_field[y][x] = value
         print(self.parent.sudoku.current_field)
 
-    def __draw_pen(self, str_value: str) -> None:
+    def draw_pen(self, str_value: str) -> None:
         """Рисуем ручкой
         :param str_value: текст на эту кнопку
         """
@@ -66,6 +65,7 @@ class CellWidget(QWidget):
         self.button.setText(str_value)
         self.button.setStyleSheet('QPushButton {color: black;}')
         self.is_drawn_in_pencil = False
+        self.parent.do_paint = True
 
     def __draw_pencil(self, str_value: str) -> None:
         """Рисуем карандашом
@@ -103,20 +103,14 @@ class CellWidget(QWidget):
             print(y, x)
             variants = self.parent.sudoku.generate_cell_value(x, y, is_main_field=False)
             print(variants)
-            new_digit = ""
-            new_text = ""
+            new_digit = []
             for digit in self.button.text():
                 if digit == "\n" or digit == " ":
                     continue
                 if int(digit) in variants:
-                    new_digit += digit
+                    new_digit.append(digit)
 
-            for i, digit in enumerate(new_digit):
-                new_text += digit
-                if (i + 1) % 3 == 0:
-                    new_text += "\n"
-                else:
-                    new_text += " "
+            new_text = CellWidget.__variants_to_string(tuple(new_digit))
 
             self.button.setText(new_text)
             self.button.setStyleSheet('QPushButton {color: red; font-size: 10px;}')
@@ -141,6 +135,8 @@ class CellWidget(QWidget):
         for elem in variants:
             if index % 3 == 0 and index != 0:
                 result += "\n"
+            else:
+                result += " "
             result += str(elem)
             index += 1
 

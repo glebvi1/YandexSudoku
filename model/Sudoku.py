@@ -3,11 +3,15 @@ from __future__ import annotations
 import base64
 import copy
 import random
+from typing import Union
 
 import numpy as np
 
 
 class Sudoku:
+
+    """Конструкторы"""
+
     def __init__(self, n=0, is_generated=True) -> None:
         """
         :param n: сложность сгенирированной судику
@@ -89,8 +93,10 @@ class Sudoku:
 
         self.current_field = copy.deepcopy(self.start_field)
 
-    def solve_easy_sudoku(self) -> bool:
-        """Решаем судоку простым способом"""
+    def solve_easy_sudoku(self, one_digit=False) -> Union[bool, tuple]:
+        """Решаем судоку простым способом
+        :param one_digit: угадать первое число
+        """
         open_cells = 0
         for i, arr in enumerate(self.solved_field):
             for j, elem in enumerate(arr):
@@ -99,12 +105,19 @@ class Sudoku:
                     continue
                 values = self.generate_cell_value(j, i, is_solved_field=True)
                 if len(values) == 1:
+
+                    if one_digit:
+                        print(i, j, values)
+                        self.__open_cells = 0
+                        return i, j, values[0]
                     self.solved_field[i][j] = values[0]
                     open_cells += 1
                     continue
                 elif len(values) == 0:
                     return False
 
+        if one_digit:
+            return False
         if open_cells == 81:
             self.__open_cells = 0
             return True
@@ -152,6 +165,30 @@ class Sudoku:
                 if self.field[i][j] != self.current_field[i][j]:
                     return False
         return True
+
+    def get_hint(self) -> tuple:
+        """Метод подсказывает следующий ход"""
+        self.solved_field = copy.deepcopy(self.current_field)
+        results = self.solve_easy_sudoku(one_digit=True)
+        print(results)
+        if isinstance(results, bool):
+            min_variants = 9
+            min_i = 0
+            min_j = 0
+            for i in range(9):
+                for j in range(9):
+                    if self.current_field[i][j] != 0:
+                        continue
+                    values = self.generate_cell_value(j, i, is_main_field=False)
+                    l = len(values)
+                    if l < min_variants:
+                        min_variants = l
+                        min_i = i
+                        min_j = j
+            return min_i, min_j, self.field[min_i][min_j]
+
+        return results
+
 
     """Алгоритмы перемешивания судоку"""
 

@@ -87,8 +87,11 @@ class GameWindow(QWidget):
         print(text)
         if text == "Сохранить игру":
             self.__save_sudoku()
-        elif text == "Подсказать следующих ход":
-            pass
+        elif text == "Подсказать следующий ход":
+            i, j, value = self.sudoku.get_hint()
+            cell = self.findChild(CellWidget, f"cell{str(i) + str(j)}")
+            cell.draw_pen(str(value))
+            self.sudoku.current_field[i][j] = value
         elif text == "Разметить поле карандашом":
             self.__draw_pencil_all()
 
