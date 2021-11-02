@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import sys
 
 from PyQt5 import uic
@@ -6,6 +8,8 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 from NewGameWindow import NewGameWindow
 from SettingsDialog import SettingsDialog
 from UploadSudokuWindow import UploadSudokuWindow
+
+main_window = None
 
 
 class MainWindow(QMainWindow):
@@ -16,6 +20,16 @@ class MainWindow(QMainWindow):
         self.buttons = (self.btn_settings, self.btn_new_game, self.btn_upload_game)
 
         self.__setup_ui()
+
+    @classmethod
+    def restart(cls) -> MainWindow:
+        """Перезагрузка MainWindow"""
+        global main_window
+        main_window = cls()
+        for button in main_window.buttons:
+            button.show()
+        main_window.show()
+        return main_window
 
     def __setup_ui(self) -> None:
         """Установка слушателей на кнопки"""
@@ -47,7 +61,7 @@ def except_hook(cls, exception, traceback):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = MainWindow()
-    ex.show()
+    main_window = MainWindow()
+    main_window.show()
     sys.excepthook = except_hook
     sys.exit(app.exec_())

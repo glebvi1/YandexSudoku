@@ -10,11 +10,10 @@ class WinDialog(QDialog):
         super().__init__(parent)
         uic.loadUi('ui/win.ui', self)
         self.parent = parent
-        self.buttonBox.accepted.connect(WinDialog.__run)
+        self.buttonBox.accepted.connect(self.__run)
 
-    @staticmethod
-    def __run() -> None:
+    def __run(self) -> None:
         """Запуск главного окна"""
+        self.parent.hide()
         from ui.MainWindow import MainWindow
-        main = MainWindow()
-        main.show()
+        MainWindow.restart().show()
