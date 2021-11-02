@@ -178,6 +178,11 @@
    </property>
    <item>
     <property name="text">
+     <string>Выберите действие...</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
      <string>Сохранить игру</string>
     </property>
    </item>
@@ -191,19 +196,6 @@
      <string>Разметить поле карандашом</string>
     </property>
    </item>
-  </widget>
-  <widget class="QPushButton" name="apply">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>12</y>
-     <width>181</width>
-     <height>51</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Применить</string>
-   </property>
   </widget>
  </widget>
  <resources/>

@@ -29,7 +29,7 @@ class GameWindow(QWidget):
 
     def __setup_ui(self) -> None:
         """Отображение первоначального ui"""
-        self.apply.clicked.connect(self.__do_event)
+        self.event.currentIndexChanged.connect(self.__do_event)
         self.__init_gui_sudoku()
         self.__init_radio_buttons()
 
@@ -47,22 +47,36 @@ class GameWindow(QWidget):
     def __init_gui_sudoku(self) -> None:
         """Отображаем стартовое поле судоку"""
         c = 0
+        whites1 = [0, 1, 2]
+        whites2 = [6, 7, 8]
+        black = [3, 4, 5]
         for i in range(9):
             for j in range(9):
+                color = ""
                 from ui.CellWidget import CellWidget
                 cell = CellWidget(self)
                 cell.setObjectName(f"cell{str(i) + str(j)}")
                 cell.button.setObjectName(f"btn{str(i) + str(j)}")
                 if self.sudoku.start_field[i][j] != 0:
                     cell.button.setText(str(self.sudoku.start_field[i][j]))
-                    cell.button.setStyleSheet('QPushButton {color: blue}')
+                    color = "green"
                     cell.button.setEnabled(False)
                     c += 1
                 elif self.sudoku.current_field[i][j] != 0:
                     cell.button.setText(str(self.sudoku.current_field[i][j]))
-                    cell.button.setStyleSheet('QPushButton {color: black}')
+                    color = "black"
                 else:
                     cell.button.setText("")
+
+                cell.color = color
+
+                if ((i in whites1 or i in whites2) and (j in whites1 or j in whites2)) or (i in black and j in black):
+                    cell.button.setStyleSheet("QPushButton {background-color: grey; color: " + color + "}")
+                    cell.background_color = "grey"
+                else:
+                    cell.button.setStyleSheet("QPushButton {background-color: white; color: " + color + "}")
+                    cell.background_color = "white"
+
                 self.ui_field.addWidget(cell.button, i, j)
         print(c)
 
@@ -97,7 +111,7 @@ class GameWindow(QWidget):
 
     def __save_sudoku(self) -> None:
         """Запускаем диалоговое окно сохранения судоку"""
-        save = SaveSudokuDialog(self.parent, self.sudoku)
+        save = SaveSudokuDialog(self, self.sudoku)
         save.show()
 
     def __draw_pencil_all(self) -> None:

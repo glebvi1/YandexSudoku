@@ -13,6 +13,9 @@ class CellWidget(QWidget):
         self.button.clicked.connect(self.__draw)
         self.parent = parent
         self.is_drawn_in_pencil = False
+        self.color = ""
+        self.background_color = ""
+        self.font_size = "15"
 
     def __draw(self) -> None:
         """Рисуем на gui"""
@@ -63,7 +66,9 @@ class CellWidget(QWidget):
         """
         print(str_value)
         self.button.setText(str_value)
-        self.button.setStyleSheet('QPushButton {color: black;}')
+        self.color = "green"
+        self.font_size = "15"
+        self.__set_style()
         self.is_drawn_in_pencil = False
         self.parent.do_paint = True
 
@@ -75,7 +80,9 @@ class CellWidget(QWidget):
         text = self.button.text()
         if text == "":
             self.button.setText(str_value)
-            self.button.setStyleSheet('QPushButton {color: red; font-size: 10px;}')
+            self.color = "red"
+            self.font_size = "10"
+            self.__set_style()
             return
 
         count = 0
@@ -92,7 +99,9 @@ class CellWidget(QWidget):
             text += f" {str_value}"
 
         self.button.setText(text)
-        self.button.setStyleSheet('QPushButton {color: red; font-size: 10px;}')
+        self.color = "red"
+        self.font_size = "10"
+        self.__set_style()
 
     def update_button(self) -> None:
         """Обновляем кнопки с карандашом"""
@@ -113,7 +122,9 @@ class CellWidget(QWidget):
             new_text = CellWidget.__variants_to_string(tuple(new_digit))
 
             self.button.setText(new_text)
-            self.button.setStyleSheet('QPushButton {color: red; font-size: 10px;}')
+            self.color = "red"
+            self.font_size = "10"
+            self.__set_style()
 
     def draw_all_variants(self, x, y) -> None:
         """Помечаем кнопку всеми вариантами"""
@@ -123,7 +134,9 @@ class CellWidget(QWidget):
 
         variants = self.parent.sudoku.generate_cell_value(x, y, is_main_field=False)
         self.button.setText(CellWidget.__variants_to_string(variants))
-        self.button.setStyleSheet('QPushButton {color: red; font-size: 10px;}')
+        self.color = "red"
+        self.font_size = "10"
+        self.__set_style()
 
     @staticmethod
     def __variants_to_string(variants: tuple) -> str:
@@ -141,3 +154,7 @@ class CellWidget(QWidget):
             index += 1
 
         return result
+
+    def __set_style(self):
+        self.button.setStyleSheet("QPushButton {color: " + self.color + "; background-color: "
+                           + self.background_color + "; font-size: " + self.font_size + "px;}")

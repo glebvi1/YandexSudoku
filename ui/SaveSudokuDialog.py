@@ -18,4 +18,5 @@ class SaveSudokuDialog(QDialog):
         name = self.filename.text()
         if name != "":
             self.sudoku.save_game(name)
-        self.close()
+        from ui.MainWindow import MainWindow
+        MainWindow.restart().show()
