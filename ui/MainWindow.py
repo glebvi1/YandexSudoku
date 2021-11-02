@@ -11,6 +11,7 @@ from UploadSudokuWindow import UploadSudokuWindow
 from ui.LoginWindow import LoginWindow
 
 main_window = None
+user = None
 
 
 class MainWindow(QMainWindow):
@@ -26,7 +27,6 @@ class MainWindow(QMainWindow):
     def restart(cls) -> MainWindow:
         """Перезагрузка MainWindow"""
         global main_window
-
         main_window = cls()
         for button in main_window.buttons:
             button.show()

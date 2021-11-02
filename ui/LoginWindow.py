@@ -27,6 +27,10 @@ class LoginWindow(QWidget):
         user = login_user(login, password)
         if user is None:
             self.error.setText("Вы ввели некоректные данные!")
+            return
+        from ui.MainWindow import MainWindow
+        MainWindow.user = user
+        MainWindow.restart()
         print(user)
 
     def __create_account(self):

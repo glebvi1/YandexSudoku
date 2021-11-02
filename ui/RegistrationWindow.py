@@ -28,6 +28,10 @@ class RegistrationWindow(QWidget):
         user = registration_user(login, name, password)
         if user is None:
             self.error.setText("Вы ввели некоректные данные!")
+            return
+        from ui.MainWindow import MainWindow
+        MainWindow.user = user
+        MainWindow.restart()
         print(user)
 
     def __have_account(self):
