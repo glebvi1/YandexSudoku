@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 from NewGameWindow import NewGameWindow
 from SettingsDialog import SettingsDialog
 from UploadSudokuWindow import UploadSudokuWindow
+from ui.LoginWindow import LoginWindow
 
 main_window = None
 
@@ -17,7 +18,7 @@ class MainWindow(QMainWindow):
         """Конструктор MainWindow"""
         super().__init__()
         uic.loadUi('ui/main_window.ui', self)
-        self.buttons = (self.btn_settings, self.btn_new_game, self.btn_upload_game)
+        self.buttons = (self.btn_settings, self.btn_new_game, self.btn_upload_game, self.btn_login)
 
         self.__setup_ui()
 
@@ -25,10 +26,12 @@ class MainWindow(QMainWindow):
     def restart(cls) -> MainWindow:
         """Перезагрузка MainWindow"""
         global main_window
+
         main_window = cls()
         for button in main_window.buttons:
             button.show()
         main_window.show()
+
         return main_window
 
     def __setup_ui(self) -> None:
@@ -37,7 +40,7 @@ class MainWindow(QMainWindow):
             button.clicked.connect(self.__navigation)
 
     def __navigation(self) -> None:
-        """Переключения на окона: 'новая игра', 'загрузка игры', 'настройки'"""
+        """Переключения на окона: 'новая игра', 'загрузка игры', 'настройки', 'авторизация'"""
         name = self.sender().objectName()[4:]
         if name == "settings":
             settings = SettingsDialog(self)
@@ -47,12 +50,16 @@ class MainWindow(QMainWindow):
         for button in self.buttons:
             button.hide()
         self.label.hide()
+
         if name == "new_game":
             new_game = NewGameWindow(self)
             new_game.show()
         elif name == "upload_game":
             upload_sudoku = UploadSudokuWindow(self)
             upload_sudoku.show()
+        elif name == "login":
+            login = LoginWindow(self)
+            login.show()
 
 
 def except_hook(cls, exception, traceback):

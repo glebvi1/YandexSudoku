@@ -20,7 +20,7 @@
       <x>210</x>
       <y>210</y>
       <width>191</width>
-      <height>133</height>
+      <height>251</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="layout_buttons">
@@ -38,6 +38,13 @@
       <widget class="QPushButton" name="btn_upload_game">
        <property name="text">
         <string>Загрузить игру</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_login">
+       <property name="text">
+        <string>Авторизоваться</string>
        </property>
       </widget>
      </item>
