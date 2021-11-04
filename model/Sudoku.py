@@ -19,6 +19,10 @@ class Sudoku:
         :param is_generated: нужно ли генерировать судоку
         """
         self.n = n
+        self.count_hints = 0
+        self.time = "00:00:00"
+        self.is_solved = False
+
         self.field = np.array([])
 
         # Текущее состояние поля
@@ -165,6 +169,7 @@ class Sudoku:
             for j in range(9):
                 if self.field[i][j] != self.current_field[i][j]:
                     return False
+        self.is_solved = True
         return True
 
     def get_hint(self) -> Tuple[int, int, int]:

@@ -1,7 +1,7 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QWidget, QLineEdit
 
-from dao.db_handler import login_user
+from dao.db_users_handler import login_user
 
 
 class LoginWindow(QWidget):

@@ -1,5 +1,7 @@
+from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import uic
+from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QWidget
 
 from ui.CellWidget import CellWidget
@@ -9,7 +11,6 @@ from ui.SaveSudokuDialog import SaveSudokuDialog
 class GameWindow(QWidget):
     current_value = "0"
     is_pen = True
-    sudoku = []
     error_text = ""
     do_paint = False
 
@@ -32,6 +33,7 @@ class GameWindow(QWidget):
         self.event.currentIndexChanged.connect(self.__do_event)
         self.__init_gui_sudoku()
         self.__init_radio_buttons()
+        self.__init_time()
 
     def __init_radio_buttons(self) -> None:
         """Отображаем radio buttons: цифры 1-9 и ручка/карандаш"""
@@ -80,6 +82,12 @@ class GameWindow(QWidget):
                 self.ui_field.addWidget(cell.button, i, j)
         print(c)
 
+    def __init_time(self):
+        self.time = QtCore.QTime(0, 0, 0)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.__timer_event)
+        self.timer.start(1000)
+
     """Слушатели"""
 
     def __change_digit(self) -> None:
@@ -94,19 +102,20 @@ class GameWindow(QWidget):
         print(name)
         self.is_pen = name == "pen"
 
-    """Применить действия"""
-
     def __do_event(self):
+        """Применить действия"""
         text = str(self.event.currentText())
         print(text)
         if text == "Сохранить игру":
             self.__save_sudoku()
         elif text == "Подсказать следующий ход":
+            self.sudoku.count_hints += 1
             i, j, value = self.sudoku.get_hint()
             cell = self.findChild(CellWidget, f"cell{str(i) + str(j)}")
             cell.draw_pen(str(value))
             self.sudoku.current_field[i][j] = value
         elif text == "Разметить поле карандашом":
+            self.sudoku.count_hints += 1
             self.__draw_pencil_all()
 
     def __save_sudoku(self) -> None:
@@ -120,6 +129,11 @@ class GameWindow(QWidget):
             for j in range(9):
                 cell = self.findChild(CellWidget, f"cell{str(i) + str(j)}")
                 cell.draw_all_variants(j, i)
+
+    def __timer_event(self):
+        time_display = self.time.toString('hh:mm:ss')
+        self.label_timer.setText(time_display)
+        self.time = self.time.addSecs(1)
 
     """Перерисовка экрана"""
 

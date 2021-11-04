@@ -39,7 +39,6 @@ def registration_user(login: str, name: str, password: str) -> Optional[User]:
     connection.commit()
 
     uid = cursor.execute(f"SELECT uid FROM users WHERE login='{login}';").fetchone()[0]
-    print(uid, type(uid))
 
     cursor.close()
     connection.close()
