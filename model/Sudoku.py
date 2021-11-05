@@ -8,6 +8,8 @@ from typing import Union
 
 import numpy as np
 
+from dao.db_sudokus_handler import save_sudoku, find_sudoku_by_filename
+
 
 class Sudoku:
 
@@ -22,6 +24,7 @@ class Sudoku:
         self.count_hints = 0
         self.time = "00:00:00"
         self.is_solved = False
+        self.filename = ""
 
         self.field = np.array([])
 
@@ -339,16 +342,24 @@ class Sudoku:
 
     """Сохранение/загрузка игры"""
 
-    def save_game(self, name: str) -> None:
+    def save_game(self, name: str, time: str, count_hints: int, user=None) -> None:
         """ Сохраняем судоку в файл
         :param name: имя файла без расширения
+        :param time: время
+        :param count_hints: кол-во подсказок
+        :param user: пользователь
         """
         cur_field, field, start_field = self.__encoding()
         with open(name + ".txt", "w+", encoding="utf-8") as file:
-            file.write(str(self.n) + "\n")
             file.write(str(cur_field) + "\n")
             file.write(str(field) + "\n")
             file.write(str(start_field) + "\n")
+        if user is None:
+            return
+        self.filename = name + ".txt"
+        self.time = time
+        self.count_hints = count_hints
+        save_sudoku(self, user)
 
     @staticmethod
     def __upload_play(name: str) -> Sudoku:
@@ -358,16 +369,13 @@ class Sudoku:
         encoding_cur_field = ""
         encoding_field = ""
         encoding_start_field = ""
-        n = 0
         # Построчно заполняем self
         for ind, line in enumerate(Sudoku.__reader(name + ".txt")):
             if ind == 0:
-                n = int(line[0])
-            elif ind == 1:
                 encoding_cur_field = line[1:]
-            elif ind == 2:
+            elif ind == 1:
                 encoding_field = line[1:]
-            elif ind == 3:
+            elif ind == 2:
                 encoding_start_field = line[1:]
 
         # Дешифруем поля, получаем строки
@@ -376,11 +384,16 @@ class Sudoku:
                                                               encoding_start_field.encode("utf-8"))
 
         # Перевод поля из строки в поле (np.array)
-        sudoku = Sudoku(n=n, is_generated=False)
+        sudoku = Sudoku(is_generated=False)
         sudoku.current_field = Sudoku.__str_to_sudoku(current_field)
         sudoku.field = Sudoku.__str_to_sudoku(field)
         sudoku.start_field = Sudoku.__str_to_sudoku(start_field)
         print(sudoku.current_field, sudoku.field, sep="\n")
+
+        import ui.MainWindow as mw
+        if mw.user is not None:
+            sudoku = find_sudoku_by_filename(name + ".txt", mw.user, sudoku)
+
         return sudoku
 
     def __encoding(self) -> Tuple[bytes, bytes, bytes]:
@@ -458,7 +471,7 @@ class Sudoku:
         for j, array in enumerate(self.field):
             for i, elem in enumerate(array):
                 if elem != 0:
-                    result += elem
+                    result += str(elem)
                 else:
                     result += "."
 

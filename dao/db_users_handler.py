@@ -18,7 +18,8 @@ def login_user(login: str, password: str) -> Optional[User]:
     connection.close()
 
     if len(users) != 0 and users[0][3] == password:
-        return User(uid=users[0][0], login=users[0][1], name=users[0][2], password=users[0][3])
+        return User(uid=users[0][0], login=users[0][1], name=users[0][2],
+                    password=users[0][3], sudokus=parse_sid(users[0][4]))
     return None
 
 
@@ -38,8 +39,31 @@ def registration_user(login: str, name: str, password: str) -> Optional[User]:
     cursor.execute(f"INSERT INTO users (login, name, password) VALUES {login, name, password};")
     connection.commit()
 
-    uid = cursor.execute(f"SELECT uid FROM users WHERE login='{login}';").fetchone()[0]
+    uid = cursor.lastrowid
 
     cursor.close()
     connection.close()
     return User(uid=uid, login=login, name=name, password=password)
+
+
+def update_user(user: User):
+    connection = sqlite3.connect("dao/sudoku.db")
+    cursor = connection.cursor()
+
+    print(user.sudokus)
+
+    sid = ""
+    for elem in user.sudokus:
+        sid += f";{elem}"
+    sid = sid[1:]
+    print(sid)
+
+    cursor.executescript(f"UPDATE users SET sid='{sid}' WHERE uid='{user.uid}';")
+    connection.commit()
+
+    cursor.close()
+    connection.close()
+
+
+def parse_sid(sids: str) -> list:
+    return list(map(int, sids.split(";"))) if sids is not None else None

@@ -13,6 +13,7 @@ class GameWindow(QWidget):
     is_pen = True
     error_text = ""
     do_paint = False
+    TIME_FORMAT = "hh:mm:ss"
 
     def __init__(self, parent, sudoku) -> None:
         """
@@ -22,6 +23,12 @@ class GameWindow(QWidget):
         super().__init__(parent)
         self.sudoku = sudoku
         self.parent = parent
+        self.time = QtCore.QTime(0, 0, 0)
+        self.time = self.time.fromString(self.sudoku.time, GameWindow.TIME_FORMAT)
+        print(self.sudoku.time)
+        print(self.time.toString())
+        self.count_hints = 0
+
         uic.loadUi('ui/game.ui', self)
 
         self.__setup_ui()
@@ -48,10 +55,10 @@ class GameWindow(QWidget):
 
     def __init_gui_sudoku(self) -> None:
         """Отображаем стартовое поле судоку"""
-        c = 0
         whites1 = [0, 1, 2]
         whites2 = [6, 7, 8]
         black = [3, 4, 5]
+
         for i in range(9):
             for j in range(9):
                 color = ""
@@ -63,7 +70,6 @@ class GameWindow(QWidget):
                     cell.button.setText(str(self.sudoku.start_field[i][j]))
                     color = "green"
                     cell.button.setEnabled(False)
-                    c += 1
                 elif self.sudoku.current_field[i][j] != 0:
                     cell.button.setText(str(self.sudoku.current_field[i][j]))
                     color = "black"
@@ -72,7 +78,8 @@ class GameWindow(QWidget):
 
                 cell.color = color
 
-                if ((i in whites1 or i in whites2) and (j in whites1 or j in whites2)) or (i in black and j in black):
+                if ((i in whites1 or i in whites2) and (j in whites1 or j in whites2)) \
+                        or (i in black and j in black):
                     cell.button.setStyleSheet("QPushButton {background-color: grey; color: " + color + "}")
                     cell.background_color = "grey"
                 else:
@@ -80,10 +87,8 @@ class GameWindow(QWidget):
                     cell.background_color = "white"
 
                 self.ui_field.addWidget(cell.button, i, j)
-        print(c)
 
     def __init_time(self):
-        self.time = QtCore.QTime(0, 0, 0)
         self.timer = QTimer()
         self.timer.timeout.connect(self.__timer_event)
         self.timer.start(1000)
@@ -109,13 +114,13 @@ class GameWindow(QWidget):
         if text == "Сохранить игру":
             self.__save_sudoku()
         elif text == "Подсказать следующий ход":
-            self.sudoku.count_hints += 1
+            self.count_hints += 1
             i, j, value = self.sudoku.get_hint()
             cell = self.findChild(CellWidget, f"cell{str(i) + str(j)}")
             cell.draw_pen(str(value))
             self.sudoku.current_field[i][j] = value
         elif text == "Разметить поле карандашом":
-            self.sudoku.count_hints += 1
+            self.count_hints += 1
             self.__draw_pencil_all()
 
     def __save_sudoku(self) -> None:
@@ -131,7 +136,7 @@ class GameWindow(QWidget):
                 cell.draw_all_variants(j, i)
 
     def __timer_event(self):
-        time_display = self.time.toString('hh:mm:ss')
+        time_display = self.time.toString(GameWindow.TIME_FORMAT)
         self.label_timer.setText(time_display)
         self.time = self.time.addSecs(1)
 

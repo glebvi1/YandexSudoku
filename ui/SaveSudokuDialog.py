@@ -10,13 +10,21 @@ class SaveSudokuDialog(QDialog):
         """
         super().__init__(parent)
         self.sudoku = sudoku
+        self.parent = parent
         uic.loadUi('ui/save_sudoku.ui', self)
         self.btn_save.clicked.connect(self.save_sudoku)
 
     def save_sudoku(self) -> None:
         """Сохраняем судоку в файл"""
+        import ui.MainWindow as mw
+
         name = self.filename.text()
-        if name != "":
-            self.sudoku.save_game(name)
-        from ui.MainWindow import MainWindow
-        MainWindow.restart().show()
+        time = self.parent.time.toString()
+        count_hints = self.parent.count_hints
+        if name == "":
+            return
+
+        if mw.user is not None:
+            current_user = self.sudoku.save_game(name, time, count_hints, mw.user)
+            mw.user = current_user
+        mw.MainWindow.restart().show()
