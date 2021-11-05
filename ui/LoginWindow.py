@@ -30,8 +30,9 @@ class LoginWindow(QWidget):
             return
         import ui.MainWindow as mw
         mw.user = current_user
-        mw.MainWindow.restart()
+        self.parent.restart()
         print(mw.user)
+        self.hide()
 
     def __create_account(self):
         for widget in self.widgets:

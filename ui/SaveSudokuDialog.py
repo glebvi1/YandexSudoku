@@ -27,4 +27,5 @@ class SaveSudokuDialog(QDialog):
         if mw.user is not None:
             current_user = self.sudoku.save_game(name, time, count_hints, mw.user)
             mw.user = current_user
-        mw.MainWindow.restart().show()
+        self.close()
+        self.parent.parent.restart()

@@ -15,5 +15,5 @@ class WinDialog(QDialog):
     def __run(self) -> None:
         """Запуск главного окна"""
         self.parent.close()
-        from ui.MainWindow import MainWindow
-        MainWindow.restart().show()
+        self.close()
+        self.parent.parent.restart()

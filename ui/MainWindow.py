@@ -10,7 +10,6 @@ from SettingsDialog import SettingsDialog
 from UploadSudokuWindow import UploadSudokuWindow
 from ui.LoginWindow import LoginWindow
 
-main_window = None
 user = None
 
 
@@ -24,15 +23,17 @@ class MainWindow(QMainWindow):
         self.__setup_ui()
 
     @classmethod
-    def restart(cls) -> MainWindow:
+    def create_new_window(cls):
+        return cls()
+
+    def restart(self):
         """Перезагрузка MainWindow"""
         global main_window
-        main_window = cls()
+        self.hide()
+        main_window = self.create_new_window()
         for button in main_window.buttons:
             button.show()
         main_window.show()
-
-        return main_window
 
     def __setup_ui(self) -> None:
         """Установка слушателей на кнопки"""
