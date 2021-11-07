@@ -82,7 +82,6 @@ class Sudoku:
         open_cells = 0
         looks_cells = [[False for _ in range(9)] for _ in range(9)]
         self.start_field = copy.deepcopy(self.field)
-        print(self.start_field, type(self.start_field), self.start_field.shape)
 
         while ind < 81 and open_cells != difficulty:
             i, j = random.randint(0, 8), random.randint(0, 8)
@@ -118,7 +117,6 @@ class Sudoku:
                 if len(values) == 1:
 
                     if one_digit:
-                        print(i, j, values)
                         self.__open_cells = 0
                         return i, j, values[0]
                     self.solved_field[i][j] = values[0]
@@ -182,7 +180,7 @@ class Sudoku:
         """Метод подсказывает следующий ход"""
         self.solved_field = copy.deepcopy(self.current_field)
         results = self.solve_easy_sudoku(one_digit=True)
-        print(results)
+
         if isinstance(results, bool):
             min_variants = 9
             min_i = 0
@@ -347,7 +345,10 @@ class Sudoku:
 
     @staticmethod
     def __create_directory(user):
+        Path("files").mkdir(parents=True, exist_ok=True)
+
         path = f"saved_sudoku_{user.uid}/" if user is not None else "local_sudoku/"
+        path = "files/" + path
         Path(path).mkdir(parents=True, exist_ok=True)
         return path
 
@@ -407,7 +408,6 @@ class Sudoku:
                 encoding_start_field = line[1:]
             elif ind == 3:
                 time = line
-                print(time)
             elif ind == 4:
                 count_hints = int(line)
 
@@ -492,7 +492,6 @@ class Sudoku:
         for arr in string.split("\n"):
             temp = []
             for elem in arr:
-                print(elem)
                 temp.append(int(elem))
             if len(temp) != 0:
                 sudoku.append(temp)

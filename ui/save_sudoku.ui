@@ -65,6 +65,19 @@
     <string>Сохранить поле</string>
    </property>
   </widget>
+  <widget class="QLabel" name="errors">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>170</y>
+     <width>351</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections>
