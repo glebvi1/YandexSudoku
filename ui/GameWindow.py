@@ -135,7 +135,8 @@ class GameWindow(QWidget):
             save = SaveSudokuDialog(self, self.sudoku)
             save.show()
         else:
-            self.sudoku.update_sudoku(self.time.toString(GameWindow.TIME_FORMAT), self.count_hints, mw.user)
+            self.sudoku.update_sudoku(self.time.toString(GameWindow.TIME_FORMAT),
+                                      self.count_hints, False, mw.user)
             self.error_text = "Сохранение успешно"
 
     def __draw_pencil_all(self) -> None:

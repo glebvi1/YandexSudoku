@@ -14,6 +14,9 @@ class WinDialog(QDialog):
 
     def __run(self) -> None:
         """Запуск главного окна"""
+        import ui.MainWindow as mw
+        if mw.user is not None:
+            self.parent.sudoku.update_sudoku(self.parent.time, self.parent.count_hints, True, mw.user)
         self.parent.close()
         self.close()
         self.parent.parent.restart()

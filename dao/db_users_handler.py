@@ -19,7 +19,7 @@ def login_user(login: str, password: str) -> Optional[User]:
 
     if len(users) != 0 and users[0][3] == password:
         return User(uid=users[0][0], login=users[0][1], name=users[0][2],
-                    password=users[0][3], sudokus=parse_sid(users[0][4]))
+                    password=users[0][3], sudokus=str_sid_to_list(users[0][4]))
     return None
 
 
@@ -50,13 +50,10 @@ def update_user(user: User):
     connection = sqlite3.connect("dao/sudoku.db")
     cursor = connection.cursor()
 
-    print(user.sudokus)
-
     sid = ""
     for elem in user.sudokus:
         sid += f";{elem}"
     sid = sid[1:]
-    print(sid)
 
     cursor.executescript(f"UPDATE users SET sid='{sid}' WHERE uid='{user.uid}';")
     connection.commit()
@@ -65,5 +62,5 @@ def update_user(user: User):
     connection.close()
 
 
-def parse_sid(sids: str) -> list:
+def str_sid_to_list(sids: str) -> list:
     return list(map(int, sids.split(";"))) if sids is not None else None

@@ -351,9 +351,10 @@ class Sudoku:
         Path(path).mkdir(parents=True, exist_ok=True)
         return path
 
-    def update_sudoku(self, time, count_hints, user):
+    def update_sudoku(self, time, count_hints, is_solved, user):
         self.count_hints = count_hints
         self.time = time
+        self.is_solved = is_solved
 
         self.save_game(self.filename[:-4], time, count_hints, user)
         update_sudoku(self, user)

@@ -1,4 +1,5 @@
 import sqlite3
+from typing import Optional
 
 from dao.db_users_handler import update_user
 from model import Sudoku
@@ -45,15 +46,32 @@ def find_sudoku_by_filename(filename: str, user: User, sudoku: Sudoku):
     return sudoku
 
 
-def update_sudoku(sudoku: Sudoku, user: User):
+def update_sudoku(sudoku: Sudoku, user: User) -> None:
     connection = sqlite3.connect("dao/sudoku.db")
     cursor = connection.cursor()
 
-    cursor.execute(f"UPDATE sudokus SET time='{sudoku.time}', count_hint={sudoku.count_hints}"
+    cursor.execute(f"UPDATE sudokus SET time='{sudoku.time}', count_hint={sudoku.count_hints}, "
+                   f"is_solved={sudoku.is_solved}"
                    f" WHERE filename='{sudoku.filename}' AND uid={user.uid}")
     connection.commit()
 
     cursor.close()
     connection.close()
 
-    return sudoku
+
+def get_sudokus_by_sids(sids: list) -> Optional[list]:
+    if sids is None:
+        return None
+
+    connection = sqlite3.connect("dao/sudoku.db")
+    cursor = connection.cursor()
+    sudokus = []
+
+    for sid in sids:
+        sudoku = cursor.execute(f"SELECT * FROM sudokus WHERE sid={sid}").fetchone()
+        sudokus.append(sudoku)
+
+    cursor.close()
+    connection.close()
+
+    return sudokus
