@@ -406,7 +406,7 @@ class Sudoku:
         """
         path = Sudoku.__create_directory(user)
 
-        count_hints = 0
+        count_hints = None
         time = "00:00:00"
 
         file_data = []
@@ -422,12 +422,13 @@ class Sudoku:
             count_hints = file_data[4][1:]
 
         # Дешифруем поля, получаем строки
-        current_field, field, start_field, count_hints = Sudoku.__decoding(encoding_cur_field.encode("utf-8"),
+        current_field, field, start_field = Sudoku.__decoding(encoding_cur_field.encode("utf-8"),
                                                               encoding_field.encode("utf-8"),
-                                                              encoding_start_field.encode("utf-8"),
-                                                              count_hints.encode("utf-8"))
-        count_hints = int(count_hints)
-        # Перевод поля из строки в поле (np.array)
+                                                              encoding_start_field.encode("utf-8"))
+        if count_hints is not None:
+            count_hints = base64.b64decode(count_hints[1:]).decode("utf-8")
+            count_hints = int(count_hints)
+
         sudoku = Sudoku(is_generated=False)
         sudoku.current_field = Sudoku.__str_to_sudoku(current_field)
         sudoku.field = Sudoku.__str_to_sudoku(field)
@@ -454,7 +455,7 @@ class Sudoku:
                base64.b64encode(counts_hint.encode("utf-8"))
 
     @staticmethod
-    def __decoding(current_field: bytes, field: bytes, start_field: bytes, count_hints: bytes) -> Tuple[str, str, str, str]:
+    def __decoding(current_field: bytes, field: bytes, start_field: bytes) -> Tuple[str, str, str]:
         """Декодируем поля из файла
         :param current_field: текущее поле
         :param field: заполненое поле
@@ -462,8 +463,7 @@ class Sudoku:
         """
         return base64.b64decode(current_field).decode("utf-8"), \
                base64.b64decode(field).decode("utf-8"), \
-               base64.b64decode(start_field).decode("utf-8"), \
-               base64.b64decode(count_hints).decode("utf-8")
+               base64.b64decode(start_field).decode("utf-8")
 
     """Работа со строками/файлами"""
 
