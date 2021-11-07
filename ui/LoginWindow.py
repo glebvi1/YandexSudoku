@@ -6,6 +6,9 @@ from dao.db_users_handler import login_user
 
 class LoginWindow(QWidget):
     def __init__(self, parent) -> None:
+        """Конструктор LoginWindow
+        :param parent: MainWindow
+        """
         super().__init__(parent)
         self.parent = parent
         uic.loadUi('ui/login.ui', self)
@@ -13,12 +16,14 @@ class LoginWindow(QWidget):
                         self.password, self.error)
         self.__setup_ui()
 
-    def __setup_ui(self):
+    def __setup_ui(self) -> None:
+        """Установка ui"""
         self.password.setEchoMode(QLineEdit.Password)
         self.btn_login.clicked.connect(self.__login)
         self.btn_create_account.clicked.connect(self.__create_account)
 
-    def __login(self):
+    def __login(self) -> None:
+        """Авторизация пользователя"""
         login = self.login.text()
         password = self.password.text()
         if len(login) == 0 or len(password) == 0:
@@ -34,6 +39,7 @@ class LoginWindow(QWidget):
         self.hide()
 
     def __create_account(self):
+        """Переход на RegistrationWindow"""
         for widget in self.widgets:
             widget.hide()
 

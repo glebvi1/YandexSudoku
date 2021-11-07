@@ -6,8 +6,9 @@ from model.Sudoku import Sudoku
 
 
 class NewGameWindow(QWidget):
+
     def __init__(self, parent) -> None:
-        """
+        """Конструктор NewGameWindow
         :param parent: MainWindow
         """
         super().__init__(parent)

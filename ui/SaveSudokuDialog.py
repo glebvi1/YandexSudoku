@@ -2,12 +2,13 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog
 
 from dao.db_sudokus_handler import get_sudokus_by_sids
+from model.User import User
 
 
 class SaveSudokuDialog(QDialog):
     def __init__(self, parent, sudoku) -> None:
         """
-        :param parent: Родитель, MainWindow
+        :param parent: Родитель, GameWindow
         :param sudoku: Текущая судоку
         """
         super().__init__(parent)
@@ -39,7 +40,7 @@ class SaveSudokuDialog(QDialog):
         self.parent.parent.restart()
 
     @staticmethod
-    def __check_filename(user, current_filename):
+    def __check_filename(user: User, current_filename: str) -> bool:
         for _, filename, _, _, _, _, _ in get_sudokus_by_sids(user.sudokus):
             if current_filename == filename:
                 return False

@@ -14,6 +14,7 @@ user = None
 
 
 class MainWindow(QMainWindow):
+
     def __init__(self) -> None:
         """Конструктор MainWindow"""
         super().__init__()
@@ -23,10 +24,11 @@ class MainWindow(QMainWindow):
         self.__setup_ui()
 
     @classmethod
-    def create_new_window(cls):
+    def create_new_window(cls) -> MainWindow:
+        """Переход на MainWindow"""
         return cls()
 
-    def restart(self):
+    def restart(self) -> None:
         """Перезагрузка MainWindow"""
         global main_window
         self.hide()
@@ -63,7 +65,7 @@ class MainWindow(QMainWindow):
             login.show()
 
 
-def except_hook(cls, exception, traceback):
+def except_hook(cls, exception, traceback) -> None:
     sys.__excepthook__(cls, exception, traceback)
 
 

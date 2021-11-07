@@ -9,7 +9,7 @@ class SettingsDialog(QDialog):
     TEXT = "Игра судоку. Создатель: Вязов Глеб, 2021г"
 
     def __init__(self, parent) -> None:
-        """
+        """Конструктор SettingsDialog
         :param parent: Родитель, MainWindow
         """
         super().__init__(parent)
@@ -18,6 +18,7 @@ class SettingsDialog(QDialog):
         self.__setup_ui()
 
     def __setup_ui(self):
+        """Установка текста на диалоговое окно"""
         import ui.MainWindow as mw
         if mw.user is None:
             return
@@ -34,11 +35,11 @@ class SettingsDialog(QDialog):
         self.label.setText(text)
 
     @staticmethod
-    def __get_difficulty(n: int):
+    def __get_difficulty(n: int) -> str:
         if n == 0:
             return "легкая"
         return "средняя" if n == 1 else "сложная"
 
     @staticmethod
-    def __get_is_solved(is_solved: bool):
+    def __get_is_solved(is_solved: bool) -> str:
         return "Решена" if is_solved else "Не решена"

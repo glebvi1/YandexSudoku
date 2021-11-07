@@ -25,8 +25,8 @@ class GameWindow(QWidget):
         self.parent = parent
         self.count_hints = sudoku.count_hints
 
-        s = self.sudoku.time.split(":")
-        self.time = QTime(int(s[0]), int(s[1]), int(s[2]))
+        split_time = self.sudoku.time.split(":")
+        self.time = QTime(int(split_time[0]), int(split_time[1]), int(split_time[2]))
 
         uic.loadUi('ui/game.ui', self)
         self.__setup_ui()
@@ -86,7 +86,8 @@ class GameWindow(QWidget):
 
                 self.ui_field.addWidget(cell.button, i, j)
 
-    def __init_time(self):
+    def __init_time(self) -> None:
+        """Отображаем время"""
         self.timer = QTimer()
         self.timer.timeout.connect(self.__timer_event)
         self.timer.start(1000)
@@ -147,6 +148,7 @@ class GameWindow(QWidget):
                 cell.draw_all_variants(j, i)
 
     def __timer_event(self):
+        """Через каждую секунду обновляем таймер"""
         time_display = self.time.toString("hh:mm:ss")
         self.label_timer.setText(time_display)
         self.time = self.time.addSecs(1)

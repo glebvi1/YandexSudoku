@@ -46,7 +46,10 @@ def registration_user(login: str, name: str, password: str) -> Optional[User]:
     return User(uid=uid, login=login, name=name, password=password)
 
 
-def update_user(user: User):
+def update_user(user: User) -> None:
+    """Обновляем данные пользователя
+    :param user: новый пользователь
+    """
     connection = sqlite3.connect("dao/sudoku.db")
     cursor = connection.cursor()
 
@@ -63,4 +66,7 @@ def update_user(user: User):
 
 
 def str_sid_to_list(sids: str) -> list:
+    """Переводим строку с судоку-id в лист
+    :param sids: сторка с судоку-id
+    """
     return list(map(int, sids.split(";"))) if sids is not None else None

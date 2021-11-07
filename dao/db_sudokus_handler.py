@@ -7,6 +7,10 @@ from model.User import User
 
 
 def save_sudoku(sudoku: Sudoku, user: User) -> User:
+    """Сохранение судоку в БД
+    :param sudoku: судоку, которую сохраняем
+    :param user: пользователь, котороый сохраняет судоку
+    """
     connection = sqlite3.connect("dao/sudoku.db")
     cursor = connection.cursor()
 
@@ -25,7 +29,12 @@ def save_sudoku(sudoku: Sudoku, user: User) -> User:
     return user
 
 
-def find_sudoku_by_filename(filename: str, user: User, sudoku: Sudoku):
+def find_sudoku_by_filename(filename: str, user: User, sudoku: Sudoku) -> Sudoku:
+    """Ищем судоку в БД по имени файла и пользователю
+    :param filename: имя файл
+    :param user: пользователь
+    :param sudoku: судоку, в которую записываем данные
+    """
     connection = sqlite3.connect("dao/sudoku.db")
     cursor = connection.cursor()
 
@@ -47,6 +56,10 @@ def find_sudoku_by_filename(filename: str, user: User, sudoku: Sudoku):
 
 
 def update_sudoku(sudoku: Sudoku, user: User) -> None:
+    """ Обновляем данные судоку
+    :param sudoku: новая судоку
+    :param user: пользователь
+    """
     connection = sqlite3.connect("dao/sudoku.db")
     cursor = connection.cursor()
 
@@ -60,6 +73,9 @@ def update_sudoku(sudoku: Sudoku, user: User) -> None:
 
 
 def get_sudokus_by_sids(sids: list) -> Optional[list]:
+    """Получаем судоку по id
+    :param sids: лист id-ников
+    """
     if sids is None:
         return None
 

@@ -8,7 +8,7 @@ from ui.GameWindow import GameWindow
 class UploadSudokuWindow(QWidget):
 
     def __init__(self, parent) -> None:
-        """
+        """Конструктор UploadSudokuWindow
         :param parent: MainWindow
         """
         super().__init__(parent)

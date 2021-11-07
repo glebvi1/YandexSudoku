@@ -13,7 +13,7 @@ class CellWidget(QWidget):
         self.button.clicked.connect(self.__draw)
         self.parent = parent
         self.is_drawn_in_pencil = False
-        self.color = ""
+        self.color = "black"
         self.background_color = ""
         self.font_size = "15"
 
@@ -66,7 +66,7 @@ class CellWidget(QWidget):
         """
         print(str_value)
         self.button.setText(str_value)
-        self.color = "green"
+        self.color = "black"
         self.font_size = "15"
         self.__set_style()
         self.is_drawn_in_pencil = False
@@ -155,6 +155,7 @@ class CellWidget(QWidget):
 
         return result
 
-    def __set_style(self):
+    def __set_style(self) -> None:
+        """Устанавливаем стиль кнопки"""
         self.button.setStyleSheet("QPushButton {color: " + self.color + "; background-color: "
                            + self.background_color + "; font-size: " + self.font_size + "px;}")

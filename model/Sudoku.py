@@ -41,7 +41,7 @@ class Sudoku:
         self.start_field = np.array([])
 
         if is_generated:
-            self.generate_field()
+            self.__generate_field()
 
     @classmethod
     def sudoku_from_file(cls, filename: str, user=None) -> Sudoku:
@@ -53,7 +53,7 @@ class Sudoku:
 
     """Генерация судоку"""
 
-    def generate_field(self) -> Sudoku:
+    def __generate_field(self) -> Sudoku:
         """
         Генерируем поле судоку с n заполнеными клетками
         n - сложность уровня (или возможное кол-во пустых строк)
@@ -93,7 +93,7 @@ class Sudoku:
                 self.start_field[i][j] = 0
                 self.solved_field = copy.deepcopy(self.start_field)
 
-                is_solvable = self.solve_hard_sudoku() if difficulty != 81 else self.solve_easy_sudoku()
+                is_solvable = self.__solve_hard_sudoku() if difficulty != 81 else self.__solve_easy_sudoku()
                 if not is_solvable:
                     self.start_field[i][j] = temp
                 else:
@@ -103,7 +103,7 @@ class Sudoku:
 
         self.current_field = copy.deepcopy(self.start_field)
 
-    def solve_easy_sudoku(self, one_digit=False) -> Union[bool, tuple]:
+    def __solve_easy_sudoku(self, one_digit=False) -> Union[bool, tuple]:
         """Решаем судоку простым способом
         :param one_digit: угадать первое число
         """
@@ -135,11 +135,11 @@ class Sudoku:
             return False
         else:
             self.__open_cells = open_cells
-            self.solve_easy_sudoku()
+            self.__solve_easy_sudoku()
 
-    def solve_hard_sudoku(self) -> bool:
+    def __solve_hard_sudoku(self) -> bool:
         """Метод решает судоку перебором всех возможных вариантов"""
-        solve = self.solve_easy_sudoku()
+        solve = self.__solve_easy_sudoku()
         if solve:
             return True
 
@@ -150,7 +150,7 @@ class Sudoku:
                 for possible_variation in self.generate_cell_value(j, i, is_solved_field=True):
                     self.solved_field[i][j] = possible_variation
 
-                    if self.solve_hard_sudoku():
+                    if self.__solve_hard_sudoku():
                         return True
                     else:
                         self.solved_field[i][j] = 0
@@ -179,7 +179,7 @@ class Sudoku:
     def get_hint(self) -> Tuple[int, int, int]:
         """Метод подсказывает следующий ход"""
         self.solved_field = copy.deepcopy(self.current_field)
-        results = self.solve_easy_sudoku(one_digit=True)
+        results = self.__solve_easy_sudoku(one_digit=True)
 
         if isinstance(results, bool):
             min_variants = 9
@@ -344,7 +344,10 @@ class Sudoku:
     """Сохранение/загрузка/обновление игры"""
 
     @staticmethod
-    def __create_directory(user):
+    def __create_directory(user: User) -> str:
+        """Создаем папки для хранения полей судоку в файлах
+        :param user: пользователь
+        """
         Path("files").mkdir(parents=True, exist_ok=True)
 
         path = f"saved_sudoku_{user.uid}/" if user is not None else "local_sudoku/"
@@ -352,7 +355,13 @@ class Sudoku:
         Path(path).mkdir(parents=True, exist_ok=True)
         return path
 
-    def update_sudoku(self, time, count_hints, is_solved, user):
+    def update_sudoku(self, time: str, count_hints: int, is_solved: bool, user: User) -> None:
+        """ Обновляем судоку
+        :param time: новое время
+        :param count_hints: новое кол-во подсказок
+        :param is_solved: решена/не решена
+        :param user: пользователь
+        """
         self.count_hints = count_hints
         self.time = time
         self.is_solved = is_solved

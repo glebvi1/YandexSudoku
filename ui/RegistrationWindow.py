@@ -5,7 +5,11 @@ from dao.db_users_handler import registration_user
 
 
 class RegistrationWindow(QWidget):
+
     def __init__(self, parent) -> None:
+        """Конструктор RegistrationWindow
+        :param parent: MainWindow
+        """
         super().__init__(parent)
         self.parent = parent
         uic.loadUi('ui/registration.ui', self)
@@ -13,12 +17,14 @@ class RegistrationWindow(QWidget):
                         self.password, self.error)
         self.__setup_ui()
 
-    def __setup_ui(self):
+    def __setup_ui(self) -> None:
+        """Установка ui"""
         self.password.setEchoMode(QLineEdit.Password)
         self.btn_reg.clicked.connect(self.__registration)
         self.btn_have_account.clicked.connect(self.__have_account)
 
-    def __registration(self):
+    def __registration(self) -> None:
+        """Регистрация пользователя"""
         login = self.login.text()
         name = self.name.text()
         password = self.password.text()
@@ -34,7 +40,8 @@ class RegistrationWindow(QWidget):
         self.parent.restart()
         self.hide()
 
-    def __have_account(self):
+    def __have_account(self) -> None:
+        """Переход на LoginWindow"""
         for widget in self.widgets:
             widget.hide()
 
