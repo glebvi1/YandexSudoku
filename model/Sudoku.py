@@ -366,15 +366,16 @@ class Sudoku:
         self.time = time
         self.is_solved = is_solved
 
-        self.save_game(self.filename[:-4], time, count_hints, user)
+        self.save_game(self.filename[:-4], time, count_hints, user, is_saving_in_db=False)
         update_sudoku(self, user)
 
-    def save_game(self, name: str, time: str, count_hints: int, user=None) -> Optional[User]:
+    def save_game(self, name: str, time: str, count_hints: int, user=None, is_saving_in_db=True) -> Optional[User]:
         """ Сохраняем судоку в файл
         :param name: имя файла без расширения
         :param time: время
         :param count_hints: кол-во подсказок
         :param user: пользователь
+        :param is_saving_in_db: сохранять ли судоку в БД
         """
 
         cur_field, field, start_field = self.__encoding()
@@ -392,7 +393,9 @@ class Sudoku:
         self.filename = name + ".txt"
         self.time = time
         self.count_hints = count_hints
-        return save_sudoku(self, user)
+
+        if is_saving_in_db:
+            return save_sudoku(self, user)
 
     @staticmethod
     def __upload_play(name: str, user=None) -> Sudoku:
@@ -402,23 +405,20 @@ class Sudoku:
         """
         path = Sudoku.__create_directory(user)
 
-        encoding_cur_field = ""
-        encoding_field = ""
-        encoding_start_field = ""
         count_hints = 0
         time = "00:00:00"
 
+        file_data = []
+
         for ind, line in enumerate(Sudoku.__reader(path + name + ".txt")):
-            if ind == 0:
-                encoding_cur_field = line[1:]
-            elif ind == 1:
-                encoding_field = line[1:]
-            elif ind == 2:
-                encoding_start_field = line[1:]
-            elif ind == 3:
-                time = line
-            elif ind == 4:
-                count_hints = int(line)
+            file_data.append(line)
+
+        encoding_cur_field = file_data[0][1:]
+        encoding_field = file_data[1][1:]
+        encoding_start_field = file_data[2][1:]
+        if len(file_data) == 5:
+            time = file_data[3]
+            count_hints = int(file_data[4])
 
         # Дешифруем поля, получаем строки
         current_field, field, start_field = Sudoku.__decoding(encoding_cur_field.encode("utf-8"),

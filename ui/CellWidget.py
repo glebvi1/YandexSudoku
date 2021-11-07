@@ -5,7 +5,7 @@ from ui.WinDialog import WinDialog
 
 class CellWidget(QWidget):
     def __init__(self, parent) -> None:
-        """
+        """Конструктор CellWidget
         :param parent: Родитель, MainWindow
         """
         super().__init__(parent)

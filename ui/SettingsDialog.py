@@ -1,5 +1,5 @@
 from PyQt5 import uic
-from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QDialog, QLabel, QVBoxLayout, QWidget
 
 from dao.db_sudokus_handler import get_sudokus_by_sids
 
@@ -14,7 +14,9 @@ class SettingsDialog(QDialog):
         """
         super().__init__(parent)
         uic.loadUi('ui/settings.ui', self)
-        self.label.setText(SettingsDialog.TEXT)
+        label = QLabel()
+        label.setText(SettingsDialog.TEXT)
+        self.scroll.setWidget(label)
         self.__setup_ui()
 
     def __setup_ui(self):
@@ -22,17 +24,32 @@ class SettingsDialog(QDialog):
         import ui.MainWindow as mw
         if mw.user is None:
             return
-        text = ""
-        text += f"\nДобрый день, {mw.user.name}!"
+
+        text = f"\nДобрый день, {mw.user.name}!"
         text += f"\nВсего игр: {len(mw.user.sudokus)}"
 
+        label = QLabel(self)
+        label.setText(text)
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(label)
+
+        widget = QWidget(self)
+
         sudokus = get_sudokus_by_sids(mw.user.sudokus)
+
         for _, filename, time, count_hints, is_solved, n, _ in sudokus:
-            text += f"\nСудоку {filename}\nСложность: {SettingsDialog.__get_difficulty(n)}" \
+            label = QLabel(self)
+
+            text = f"\nСудоку {filename}\nСложность: {SettingsDialog.__get_difficulty(n)}" \
                                    f"\nИспользованно подсказок: {count_hints}" \
                                    f"\n{SettingsDialog.__get_is_solved(is_solved)}"
 
-        self.label.setText(text)
+            label.setText(text)
+            layout.addWidget(label)
+
+        widget.setLayout(layout)
+        self.scroll.setWidget(widget)
 
     @staticmethod
     def __get_difficulty(n: int) -> str:

@@ -29,18 +29,28 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QLabel" name="label">
+  <widget class="QScrollArea" name="scroll">
    <property name="geometry">
     <rect>
-     <x>30</x>
+     <x>10</x>
      <y>10</y>
-     <width>341</width>
+     <width>371</width>
      <height>211</height>
     </rect>
    </property>
-   <property name="text">
-    <string>Титры</string>
+   <property name="widgetResizable">
+    <bool>true</bool>
    </property>
+   <widget class="QWidget" name="scrollAreaWidgetContents">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>369</width>
+      <height>209</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>
