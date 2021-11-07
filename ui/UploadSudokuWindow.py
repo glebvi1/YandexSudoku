@@ -25,7 +25,9 @@ class UploadSudokuWindow(QWidget):
             self.error.setText("Пустое поле!")
             return
         try:
-            sudoku = Sudoku.sudoku_from_file(filename)
+            from ui.MainWindow import user
+            print(user)
+            sudoku = Sudoku.sudoku_from_file(filename, user)
         except FileNotFoundError:
             self.error.setText("Такого файла нет!")
             return

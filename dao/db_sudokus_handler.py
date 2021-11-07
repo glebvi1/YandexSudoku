@@ -43,3 +43,17 @@ def find_sudoku_by_filename(filename: str, user: User, sudoku: Sudoku):
     connection.close()
 
     return sudoku
+
+
+def update_sudoku(sudoku: Sudoku, user: User):
+    connection = sqlite3.connect("dao/sudoku.db")
+    cursor = connection.cursor()
+
+    cursor.execute(f"UPDATE sudokus SET time='{sudoku.time}', count_hint={sudoku.count_hints}"
+                   f" WHERE filename='{sudoku.filename}' AND uid={user.uid}")
+    connection.commit()
+
+    cursor.close()
+    connection.close()
+
+    return sudoku

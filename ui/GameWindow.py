@@ -1,9 +1,9 @@
-from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import uic
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QTimer, QTime
 from PyQt5.QtWidgets import QWidget
 
+from model.Sudoku import Sudoku
 from ui.CellWidget import CellWidget
 from ui.SaveSudokuDialog import SaveSudokuDialog
 
@@ -15,7 +15,7 @@ class GameWindow(QWidget):
     do_paint = False
     TIME_FORMAT = "hh:mm:ss"
 
-    def __init__(self, parent, sudoku) -> None:
+    def __init__(self, parent, sudoku: Sudoku) -> None:
         """
         :param parent: Родитель, MainWindow
         :param sudoku: Сгенирированная судоку
@@ -23,11 +23,12 @@ class GameWindow(QWidget):
         super().__init__(parent)
         self.sudoku = sudoku
         self.parent = parent
-        self.time = QtCore.QTime(0, 0, 0)
-        self.time = self.time.fromString(self.sudoku.time, GameWindow.TIME_FORMAT)
-        print(self.sudoku.time)
-        print(self.time.toString())
-        self.count_hints = 0
+
+        print("Game sudoku time", self.sudoku.time, type(self.sudoku.time))
+        self.time = QTime.fromString(self.sudoku.time, "hh:mm:ss")
+        print("Game time", self.time.toString("hh:mm:ss"))
+        print(QTime.fromString(self.sudoku.time, "hh:mm:ss").toString("hh:mm:ss"))
+        self.count_hints = sudoku.count_hints
 
         uic.loadUi('ui/game.ui', self)
 
@@ -119,14 +120,24 @@ class GameWindow(QWidget):
             cell = self.findChild(CellWidget, f"cell{str(i) + str(j)}")
             cell.draw_pen(str(value))
             self.sudoku.current_field[i][j] = value
+
+            self.error_text = f"Использованно подсказок {self.count_hints}"
         elif text == "Разметить поле карандашом":
             self.count_hints += 1
             self.__draw_pencil_all()
 
+            self.error_text = f"Использованно подсказок {self.count_hints}"
+
     def __save_sudoku(self) -> None:
         """Запускаем диалоговое окно сохранения судоку"""
-        save = SaveSudokuDialog(self, self.sudoku)
-        save.show()
+        import ui.MainWindow as mw
+
+        if self.sudoku.filename == "" or mw.user is None:
+            save = SaveSudokuDialog(self, self.sudoku)
+            save.show()
+        else:
+            self.sudoku.update_sudoku(self.time.toString(GameWindow.TIME_FORMAT), self.count_hints, mw.user)
+            self.error_text = "Сохранение успешно"
 
     def __draw_pencil_all(self) -> None:
         """Помечаем карандашом все клетки"""
@@ -136,7 +147,7 @@ class GameWindow(QWidget):
                 cell.draw_all_variants(j, i)
 
     def __timer_event(self):
-        time_display = self.time.toString(GameWindow.TIME_FORMAT)
+        time_display = self.time.toString("hh:mm:ss")
         self.label_timer.setText(time_display)
         self.time = self.time.addSecs(1)
 

@@ -31,8 +31,8 @@ class RegistrationWindow(QWidget):
             return
         import ui.MainWindow as mw
         mw.user = current_user
-        mw.MainWindow.restart()
-        print(mw.user)
+        self.parent.restart()
+        self.hide()
 
     def __have_account(self):
         for widget in self.widgets:

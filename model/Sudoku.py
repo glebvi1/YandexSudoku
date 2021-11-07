@@ -3,12 +3,14 @@ from __future__ import annotations
 import base64
 import copy
 import random
-from typing import Tuple
+from pathlib import Path
+from typing import Tuple, Optional
 from typing import Union
 
 import numpy as np
 
-from dao.db_sudokus_handler import save_sudoku, find_sudoku_by_filename
+from dao.db_sudokus_handler import save_sudoku, find_sudoku_by_filename, update_sudoku
+from model.User import User
 
 
 class Sudoku:
@@ -42,11 +44,12 @@ class Sudoku:
             self.generate_field()
 
     @classmethod
-    def sudoku_from_file(cls, filename: str) -> Sudoku:
+    def sudoku_from_file(cls, filename: str, user=None) -> Sudoku:
         """Создаем судоку по имени файла. Может бросать FileNotFoundError
         :param filename: имя файла, с которого генерируется судоку
+        :param user: пользователь
         """
-        return cls(is_generated=False).__upload_play(filename)
+        return cls(is_generated=False).__upload_play(filename, user)
 
     """Генерация судоку"""
 
@@ -342,41 +345,64 @@ class Sudoku:
 
     """Сохранение/загрузка игры"""
 
-    def save_game(self, name: str, time: str, count_hints: int, user=None) -> None:
+    def update_sudoku(self, time, count_hints, user):
+        self.count_hints = count_hints
+        self.time = time
+
+        self.save_game(self.filename[:-4], time, count_hints, user)
+        update_sudoku(self, user)
+
+    def save_game(self, name: str, time: str, count_hints: int, user=None) -> Optional[User]:
         """ Сохраняем судоку в файл
         :param name: имя файла без расширения
         :param time: время
         :param count_hints: кол-во подсказок
         :param user: пользователь
         """
+        path = f"saved_sudoku_{user.uid}/" if user is not None else "local_sudoku/"
+        print(path)
+        Path(path).mkdir(parents=True, exist_ok=True)
         cur_field, field, start_field = self.__encoding()
-        with open(name + ".txt", "w+", encoding="utf-8") as file:
+
+        with open(path + name + ".txt", "w+", encoding="utf-8") as file:
             file.write(str(cur_field) + "\n")
             file.write(str(field) + "\n")
             file.write(str(start_field) + "\n")
-        if user is None:
-            return
+            if user is None:
+                file.write(time + "\n")
+                file.write(str(count_hints))
+                return None
         self.filename = name + ".txt"
         self.time = time
         self.count_hints = count_hints
-        save_sudoku(self, user)
+        return save_sudoku(self, user)
 
     @staticmethod
-    def __upload_play(name: str) -> Sudoku:
+    def __upload_play(name: str, user=None) -> Sudoku:
         """ Загружаем игру из файла
         :param name: Имя файла без расширения
+        :param user: пользователь
         """
+        path = f"saved_sudoku_{user.uid}/" if user is not None else "local_sudoku/"
+        Path(path).mkdir(parents=True, exist_ok=True)
         encoding_cur_field = ""
         encoding_field = ""
         encoding_start_field = ""
-        # Построчно заполняем self
-        for ind, line in enumerate(Sudoku.__reader(name + ".txt")):
+        count_hints = 0
+        time = ""
+
+        for ind, line in enumerate(Sudoku.__reader(path + name + ".txt")):
             if ind == 0:
                 encoding_cur_field = line[1:]
             elif ind == 1:
                 encoding_field = line[1:]
             elif ind == 2:
                 encoding_start_field = line[1:]
+            elif ind == 3:
+                time = line
+                print(time)
+            elif ind == 4:
+                count_hints = int(line)
 
         # Дешифруем поля, получаем строки
         current_field, field, start_field = Sudoku.__decoding(encoding_cur_field.encode("utf-8"),
@@ -388,11 +414,12 @@ class Sudoku:
         sudoku.current_field = Sudoku.__str_to_sudoku(current_field)
         sudoku.field = Sudoku.__str_to_sudoku(field)
         sudoku.start_field = Sudoku.__str_to_sudoku(start_field)
-        print(sudoku.current_field, sudoku.field, sep="\n")
 
-        import ui.MainWindow as mw
-        if mw.user is not None:
-            sudoku = find_sudoku_by_filename(name + ".txt", mw.user, sudoku)
+        if user is not None:
+            sudoku = find_sudoku_by_filename(name + ".txt", user, sudoku)
+        else:
+            sudoku.time = time
+            sudoku.count_hints = count_hints
 
         return sudoku
 
