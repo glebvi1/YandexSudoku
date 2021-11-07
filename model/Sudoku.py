@@ -343,7 +343,13 @@ class Sudoku:
                self.__check_vertical(i, number, is_solved_field, is_main_field) and \
                self.__check_square(i, j, number, is_solved_field, is_main_field)
 
-    """Сохранение/загрузка игры"""
+    """Сохранение/загрузка/обновление игры"""
+
+    @staticmethod
+    def __create_directory(user):
+        path = f"saved_sudoku_{user.uid}/" if user is not None else "local_sudoku/"
+        Path(path).mkdir(parents=True, exist_ok=True)
+        return path
 
     def update_sudoku(self, time, count_hints, user):
         self.count_hints = count_hints
@@ -359,10 +365,9 @@ class Sudoku:
         :param count_hints: кол-во подсказок
         :param user: пользователь
         """
-        path = f"saved_sudoku_{user.uid}/" if user is not None else "local_sudoku/"
-        print(path)
-        Path(path).mkdir(parents=True, exist_ok=True)
+
         cur_field, field, start_field = self.__encoding()
+        path = Sudoku.__create_directory(user)
 
         with open(path + name + ".txt", "w+", encoding="utf-8") as file:
             file.write(str(cur_field) + "\n")
@@ -372,6 +377,7 @@ class Sudoku:
                 file.write(time + "\n")
                 file.write(str(count_hints))
                 return None
+
         self.filename = name + ".txt"
         self.time = time
         self.count_hints = count_hints
@@ -383,13 +389,13 @@ class Sudoku:
         :param name: Имя файла без расширения
         :param user: пользователь
         """
-        path = f"saved_sudoku_{user.uid}/" if user is not None else "local_sudoku/"
-        Path(path).mkdir(parents=True, exist_ok=True)
+        path = Sudoku.__create_directory(user)
+
         encoding_cur_field = ""
         encoding_field = ""
         encoding_start_field = ""
         count_hints = 0
-        time = ""
+        time = "00:00:00"
 
         for ind, line in enumerate(Sudoku.__reader(path + name + ".txt")):
             if ind == 0:

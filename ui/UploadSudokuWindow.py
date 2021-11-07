@@ -26,7 +26,6 @@ class UploadSudokuWindow(QWidget):
             return
         try:
             from ui.MainWindow import user
-            print(user)
             sudoku = Sudoku.sudoku_from_file(filename, user)
         except FileNotFoundError:
             self.error.setText("Такого файла нет!")

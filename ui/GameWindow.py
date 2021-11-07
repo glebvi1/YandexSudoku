@@ -23,15 +23,12 @@ class GameWindow(QWidget):
         super().__init__(parent)
         self.sudoku = sudoku
         self.parent = parent
-
-        print("Game sudoku time", self.sudoku.time, type(self.sudoku.time))
-        self.time = QTime.fromString(self.sudoku.time, "hh:mm:ss")
-        print("Game time", self.time.toString("hh:mm:ss"))
-        print(QTime.fromString(self.sudoku.time, "hh:mm:ss").toString("hh:mm:ss"))
         self.count_hints = sudoku.count_hints
 
-        uic.loadUi('ui/game.ui', self)
+        s = self.sudoku.time.split(":")
+        self.time = QTime(int(s[0]), int(s[1]), int(s[2]))
 
+        uic.loadUi('ui/game.ui', self)
         self.__setup_ui()
 
     """Создание стартовой сетки"""
@@ -114,6 +111,8 @@ class GameWindow(QWidget):
         print(text)
         if text == "Сохранить игру":
             self.__save_sudoku()
+        elif self.count_hints == 3:
+            self.error_text = "Лимит подсказок!"
         elif text == "Подсказать следующий ход":
             self.count_hints += 1
             i, j, value = self.sudoku.get_hint()
