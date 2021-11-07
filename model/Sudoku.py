@@ -378,7 +378,8 @@ class Sudoku:
         :param is_saving_in_db: сохранять ли судоку в БД
         """
 
-        cur_field, field, start_field = self.__encoding()
+        self.count_hints = count_hints
+        cur_field, field, start_field, str_count_hints = self.__encoding()
         path = Sudoku.__create_directory(user)
 
         with open(path + name + ".txt", "w+", encoding="utf-8") as file:
@@ -387,7 +388,7 @@ class Sudoku:
             file.write(str(start_field) + "\n")
             if user is None:
                 file.write(time + "\n")
-                file.write(str(count_hints))
+                file.write(str(str_count_hints))
                 return None
 
         self.filename = name + ".txt"
@@ -418,13 +419,14 @@ class Sudoku:
         encoding_start_field = file_data[2][1:]
         if len(file_data) == 5:
             time = file_data[3]
-            count_hints = int(file_data[4])
+            count_hints = file_data[4][1:]
 
         # Дешифруем поля, получаем строки
-        current_field, field, start_field = Sudoku.__decoding(encoding_cur_field.encode("utf-8"),
+        current_field, field, start_field, count_hints = Sudoku.__decoding(encoding_cur_field.encode("utf-8"),
                                                               encoding_field.encode("utf-8"),
-                                                              encoding_start_field.encode("utf-8"))
-
+                                                              encoding_start_field.encode("utf-8"),
+                                                              count_hints.encode("utf-8"))
+        count_hints = int(count_hints)
         # Перевод поля из строки в поле (np.array)
         sudoku = Sudoku(is_generated=False)
         sudoku.current_field = Sudoku.__str_to_sudoku(current_field)
@@ -439,18 +441,20 @@ class Sudoku:
 
         return sudoku
 
-    def __encoding(self) -> Tuple[bytes, bytes, bytes]:
-        """Кодируем игровые поля"""
+    def __encoding(self) -> Tuple[bytes, bytes, bytes, bytes]:
+        """Кодируем игровые поля и кол-во подсказок"""
         current_field_str = Sudoku.__sudoku_to_str(self.current_field)
         field_str = Sudoku.__sudoku_to_str(self.field)
         start_field_str = Sudoku.__sudoku_to_str(self.start_field)
+        counts_hint = str(self.count_hints)
 
         return base64.b64encode(current_field_str.encode("utf-8")), \
                base64.b64encode(field_str.encode("utf-8")), \
-               base64.b64encode(start_field_str.encode("utf-8"))
+               base64.b64encode(start_field_str.encode("utf-8")), \
+               base64.b64encode(counts_hint.encode("utf-8"))
 
     @staticmethod
-    def __decoding(current_field: bytes, field: bytes, start_field: bytes) -> Tuple[str, str, str]:
+    def __decoding(current_field: bytes, field: bytes, start_field: bytes, count_hints: bytes) -> Tuple[str, str, str, str]:
         """Декодируем поля из файла
         :param current_field: текущее поле
         :param field: заполненое поле
@@ -458,7 +462,8 @@ class Sudoku:
         """
         return base64.b64decode(current_field).decode("utf-8"), \
                base64.b64decode(field).decode("utf-8"), \
-               base64.b64decode(start_field).decode("utf-8")
+               base64.b64decode(start_field).decode("utf-8"), \
+               base64.b64decode(count_hints).decode("utf-8")
 
     """Работа со строками/файлами"""
 
